@@ -1,0 +1,12 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+service_account.json
+auths/*
+token.rds
+.Rdata
+.httr-oauth
+.DS_Store
+.Renviron
+Dockerfile

@@ -1,0 +1,89 @@
+FROM gcr.io/streamline-demo-311819/streamline-docker-repo/streamliner
+
+RUN apt-get -qqy update && apt-get install -qqy \
+        openssh-client \
+        qpdf
+        
+# same as streamliner
+COPY scripts /streamline_scripts
+RUN chmod +x /streamline_scripts/*.sh
+
+RUN /streamline_scripts/install_3rd_party.sh
+
+RUN /streamline_scripts/install_odbc_drivers.sh
+
+RUN /streamline_scripts/rstudio_no_login.sh
+
+# I don't want warnings to be errors
+ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
+
+## Install gargle to make sure
+RUN install2.r --error \ 
+    -r 'http://cran.rstudio.com' \
+    gargle
+
+## Install packages from CRAN
+#    googleAuthR \ 
+RUN install2.r --error \ 
+    -r 'http://cran.rstudio.com' \
+    googleAnalyticsR \ 
+    searchConsoleR \ 
+    googleCloudRunner \
+    googleCloudStorageR \
+    bigQueryR \ 
+    zip \
+## install Github packages
+    && installGithub.r MarkEdmondson1234/youtubeAnalyticsR \
+                       MarkEdmondson1234/googleID \
+                       muschellij2/googleAuthR \
+                       cloudyr/googleCloudStorageR \
+                       cloudyr/googleComputeEngineR \
+## clean up
+    && rm -rf /tmp/downloaded_packages/ /tmp/*.rds
+
+                       # MarkEdmondson1234/googleCloudRunner 
+                       
+COPY Rprofile.site /usr/local/lib/R/etc/Rprofile.site
+
+# EVERYTHING UP to this is all good to make it's own docker
+CMD ["/init"]
+
+##########################################################
+# TODO - gut above, tag and proper register
+##########################################################
+
+RUN ls
+COPY token.rds /token.rds
+COPY package /package
+
+
+# SSH AUTH and GITHUB
+# just going to add this via volumes
+# COPY ~/.ssh/id_rsa ~/.ssh/id_rsa
+
+# get gpat and pass using 
+# --build-arg GPAT=`gcloud secrets versions access latest --secret=SECRETNAME`
+# need github_pat for remotes install
+# Can't use `cat` as per https://stackoverflow.com/questions/34911622/dockerfile-set-env-to-result-of-command
+ARG GPAT
+ENV GITHUB_PAT=$GPAT 
+
+# 
+#ARG PACKAGE_NAME
+# ENV PACKAGE=${PACKAGE_NAME}
+# this is because it's standard to go in "package"
+
+RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
+
+# GCLOUD AUTH
+# as per https://cloud.google.com/build/docs/build-config-file-schema#volumes
+# workspace already mounted
+# COPY service_account.json ~/service_account.json
+# COPY client.json ~/client.json
+
+RUN echo "GAR_CLIENT_JSON=client.json" >> ~/.Renviron
+RUN echo "GAR_AUTH_FILE=service_account.json" >> ~/.Renviron
+RUN echo "GCE_AUTH_FILE=service_account.json" >> ~/.Renviron
+
+
+CMD ["/init"]

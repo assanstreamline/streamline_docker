@@ -1,0 +1,56 @@
+FROM rocker/verse
+
+RUN apt-get -qqy update && apt-get install -qqy \
+        openssh-client \
+        qpdf
+        
+# same as streamliner
+COPY scripts /streamline_scripts
+RUN chmod +x /streamline_scripts/*.sh
+
+RUN /streamline_scripts/install_3rd_party.sh
+
+RUN /streamline_scripts/install_odbc_drivers.sh
+
+RUN /streamline_scripts/rstudio_no_login.sh
+
+# I don't want warnings to be errors
+ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
+
+## Install gargle to make sure
+RUN install2.r --error \ 
+    -r 'http://cran.rstudio.com' \
+    gargle
+
+## Install packages from CRAN
+#    googleAuthR \ 
+RUN install2.r --error \ 
+    -r 'http://cran.rstudio.com' \
+    googleAnalyticsR \ 
+    searchConsoleR \ 
+    googleCloudRunner \
+    googleCloudStorageR \
+    bigQueryR \ 
+    zip \
+## install Github packages
+    && installGithub.r MarkEdmondson1234/youtubeAnalyticsR \
+                       MarkEdmondson1234/googleID \
+                       muschellij2/googleAuthR \
+                       cloudyr/googleCloudStorageR \
+                       cloudyr/googleComputeEngineR \
+## clean up
+    && rm -rf /tmp/downloaded_packages/ /tmp/*.rds
+
+                       # MarkEdmondson1234/googleCloudRunner 
+                       
+COPY Rprofile.site /usr/local/lib/R/etc/Rprofile.site
+
+EXPOSE 8787
+
+# need this because gargle caches
+RUN mkdir ~/.cache
+
+CMD ["/init"]
+
+
+# EVERYTHING UP to this is all good to make it's own docker

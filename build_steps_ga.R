@@ -1,0 +1,132 @@
+library(googleCloudRunner)
+source("cr_helpers.R")
+default_directory = "/workspace"
+
+default_volume = make_volume(name = "default", path = default_directory)
+default_volume_with_git = c(git_volume(), default_volume)
+
+
+cr_project_set("streamline-demo-311819")
+cr_region_set("us-east4")
+
+# image = "gcr.io/streamline-resources/streamliner:latest"
+r_lines <- c(
+  "R.version",
+  'library(googleAnalyticsR)',
+  'library(gargle)',
+  'sessioninfo::session_info("gargle")',
+  'token = readRDS("token.rds")',
+  'print(token)',
+  'options(gargle_verbosity = "debug")',
+  paste0("streamline.demo::google_analytics_pull_raw(", 
+         "email = 'muschellij2@gmail.com', token = token)")
+)
+
+files = c("service_account.json", "client.json", 
+          "gihub-api-key.json")
+
+
+dockerfile = file.path(default_directory, 
+                       # "streamline_startup_scripts", 
+                       "dockerfiles/Dockerfile_github_GA")
+location = file.path(default_directory)
+# , "streamline_startup_scripts")
+the_image_tagged = "googleAnalyticsAuthed"
+
+api_key_step = cr_buildstep_secret_json("github-api-key")
+
+
+
+whoami_step = cr_buildstep_whoami()
+# check the script runs ok
+steps = c(
+  whoami_step,
+  cr_buildstep_cat(attr(whoami_step, "path")),
+  cr_buildstep_sa_json(account = "gcloudrunner@streamline-demo-311819.iam.gserviceaccount.com")
+)
+steps = c(
+  steps, 
+  cr_buildstep_ls(default_directory),
+  cr_buildstep_touch(files, bash_source = "local"),
+  cr_empty_token(),
+  api_key_step,
+  cr_buildstep_ls(default_directory),
+  # this gives the required token
+  cr_buildstep_secret_binary(
+    "ga-token", 
+    decrypted = file.path(default_directory, "token.rds")
+    # ,
+    # volumes = default_volume
+  ),
+  cr_buildstep_secret_binary(
+    "ga-client", 
+    decrypted = file.path(default_directory, "client.json")
+    # ,
+    # volumes = default_volume
+  )
+)
+
+steps = c(
+  steps,
+  cr_buildstep_ls(default_directory),
+  cr_buildstep_gitsetup("github-ssh-muschellij2"),
+  cr_buildstep(
+    "git",
+    c("clone",
+      "git@github.com:StreamlineDataScience/streamline_startup_scripts", 
+      file.path(default_directory, "streamline_startup_scripts")
+    ),
+    volumes = git_volume()
+  ),
+  # this is needed because otherwise running in the
+  # subdirectory and need ../
+  cr_buildstep_bash(
+    paste("mv", file.path(default_directory, "streamline_startup_scripts/*"),
+          "/workspace")
+  ),
+  # if 
+  cr_buildstep(
+    "git",
+    args = 
+      c("clone",
+        "git@github.com:StreamlineDataScience/streamline-demo", 
+        file.path(default_directory, "package")
+      ),
+    volumes = git_volume()
+  ), # change the default (for the Docker)
+  cr_buildstep_ls(default_directory),
+  cr_buildstep(
+    "docker",
+    c("build",
+      # "--build-arg",
+      # paste0(
+      #   "GPAT=`cat ", 
+      #   attr(api_key_step, "json_file"), 
+      #   "`"
+      # ),
+      "-t", "ga_auth",
+      "-f", dockerfile,
+      # the_image_tagged,
+      location)
+    # ,
+    # volumes = default_volume_with_git
+  )
+  
+)
+
+# build <- cr_build_yaml(
+#   steps = c(steps,
+#             cr_buildstep_r(r = r_lines,
+#                            name = r_image,
+#                            id = run_name,
+#                            ...),
+#             post_steps)
+# )
+
+
+
+outbuild = cr_deploy_r(
+  r_lines, pre_steps = steps,
+  r_image = "ga_auth", prefix = "",
+  timeout = 3600L)
+
