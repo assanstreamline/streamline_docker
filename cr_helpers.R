@@ -144,7 +144,7 @@ cr_buildstep_sa_key_delete = function(
   script <- sprintf(
     paste0(
       "echo \"Account is %s\" && ", 
-      "gcloud iam service-accounts keys delete \"%s\" --iam-account=%s"
+      'echo "Y" | gcloud iam service-accounts keys delete "%s" --iam-account=%s'
     ), 
     account, private_key_id, account)
   c(

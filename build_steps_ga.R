@@ -128,6 +128,7 @@ post_steps = c(
   cr_buildstep_sa_key_delete_step(json_create_step)
 )
 
+# other way of doing this
 # build <- cr_build_yaml(
 #   steps = c(steps,
 #             cr_buildstep_r(r = r_lines,
@@ -136,7 +137,6 @@ post_steps = c(
 #                            ...),
 #             post_steps)
 # )
-
 
 
 outbuild = cr_deploy_r(
