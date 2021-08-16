@@ -34,7 +34,7 @@ ENV GITHUB_PAT=$GPAT
 # remotes::system_requirements("ubuntu")
           
 # this is because it's standard to go in "package"
-RUN Rscript -e "if (dir.exists('package')) remotes::install_local('package', upgrade = FALSE)"
+RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
 
 # GCLOUD AUTH
 # as per https://cloud.google.com/build/docs/build-config-file-schema#volumes
