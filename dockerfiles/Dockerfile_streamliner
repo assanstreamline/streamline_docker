@@ -49,6 +49,8 @@ EXPOSE 8787
 
 # need this because gargle caches
 RUN mkdir ~/.cache
+RUN chmod 777 ~/.cache
+
 
 CMD ["/init"]
 

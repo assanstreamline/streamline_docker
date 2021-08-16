@@ -94,17 +94,59 @@ cr_buildstep_sa_json = function(
   path = "/workspace/service_account.json",
   ...) {
   gsteps = NULL
+  orig_account = account
   if (is.null(account)) {
     gsteps = cr_buildstep_whoami(...)
     account = paste0("$(cat ", attr(gsteps, "path"), ")")
   }
   script <- sprintf(
     paste0(
-      "export ACCOUNT=%s && ", 
-      "echo \"Account is $$ACCOUNT\" && ", 
-      "gcloud iam service-accounts keys create \"%s\" --iam-account=$$ACCOUNT"
+      "echo \"Account is %s\" && ", 
+      "gcloud iam service-accounts keys create \"%s\" --iam-account=%s"
     ), 
-    account, path)
+    account, path, account)
+  steps = c(
+    gsteps, 
+    cr_buildstep(
+      args = c("-c", script),
+      name = "gcr.io/cloud-builders/gcloud",
+      entrypoint = "bash",
+      ...
+    )
+  )
+  attr(steps, "json_file") = path
+  attr(steps, "account") = orig_account
+  steps
+}
+
+cr_buildstep_sa_key_delete = function(
+  account = NULL, 
+  path = "/workspace/service_account.json",
+  private_key_id = NULL,
+  ...) {
+  gsteps = NULL
+  if (is.null(account)) {
+    gsteps = cr_buildstep_whoami(...)
+    account = paste0("$(cat ", attr(gsteps, "path"), ")")
+  }
+  if (is.null(private_key_id)) {
+    cmd = sprintf(
+      paste0('writeLines(jsonlite::read_json("%s")$private_key_id, ', 
+             '"/workspace/private_id.txt")'),
+             path
+    )
+    gsteps = c(gsteps, 
+               cr_buildstep_r(r = cmd, name = "verse")
+    )
+    private_key_id = "`cat /workspace/private_id.txt`"
+  }
+  stopifnot(!is.null(private_key_id))
+  script <- sprintf(
+    paste0(
+      "echo \"Account is %s\" && ", 
+      "gcloud iam service-accounts keys delete \"%s\" --iam-account=%s"
+    ), 
+    account, private_key_id, account)
   c(
     gsteps, 
     cr_buildstep(
@@ -115,6 +157,17 @@ cr_buildstep_sa_json = function(
     )
   )
 }
+
+cr_buildstep_sa_key_delete_step = function(json_step, ...) {
+  account = attr(json_step, "account")
+  path = attr(json_step, "json_file")
+  cr_buildstep_sa_key_delete(
+    account = account, 
+    path = path,
+    private_key_id = NULL,
+    ...)
+}
+
 
 
 

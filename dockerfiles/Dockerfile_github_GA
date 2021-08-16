@@ -14,6 +14,10 @@ RUN /streamline_scripts/install_odbc_drivers.sh
 
 RUN /streamline_scripts/rstudio_no_login.sh
 
+# need this because gargle caches
+RUN mkdir -p ~/.cache
+RUN chmod 777 ~/.cache'
+
 # I don't want warnings to be errors
 ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 
@@ -73,6 +77,9 @@ ENV GITHUB_PAT=$GPAT
 # ENV PACKAGE=${PACKAGE_NAME}
 # this is because it's standard to go in "package"
 
+# remotes::system_requirements("ubuntu")
+
+          
 RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
 
 # GCLOUD AUTH

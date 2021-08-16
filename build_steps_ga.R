@@ -27,10 +27,10 @@ files = c("service_account.json", "client.json",
 
 
 dockerfile = file.path(default_directory, 
-                       # "streamline_startup_scripts", 
+                       # "streamline_docker", 
                        "dockerfiles/Dockerfile_github_GA")
 location = file.path(default_directory)
-# , "streamline_startup_scripts")
+# , "streamline_docker")
 the_image_tagged = "googleAnalyticsAuthed"
 
 api_key_step = cr_buildstep_secret_json("github-api-key")
@@ -38,11 +38,14 @@ api_key_step = cr_buildstep_secret_json("github-api-key")
 
 
 whoami_step = cr_buildstep_whoami()
+json_create_step = cr_buildstep_sa_json(
+  account = "gcloudrunner@streamline-demo-311819.iam.gserviceaccount.com")
+
 # check the script runs ok
 steps = c(
   whoami_step,
   cr_buildstep_cat(attr(whoami_step, "path")),
-  cr_buildstep_sa_json(account = "gcloudrunner@streamline-demo-311819.iam.gserviceaccount.com")
+  json_create_step
 )
 steps = c(
   steps, 
@@ -73,15 +76,15 @@ steps = c(
   cr_buildstep(
     "git",
     c("clone",
-      "git@github.com:StreamlineDataScience/streamline_startup_scripts", 
-      file.path(default_directory, "streamline_startup_scripts")
+      "git@github.com:StreamlineDataScience/streamline_docker", 
+      file.path(default_directory, "streamline_docker")
     ),
     volumes = git_volume()
   ),
   # this is needed because otherwise running in the
   # subdirectory and need ../
   cr_buildstep_bash(
-    paste("mv", file.path(default_directory, "streamline_startup_scripts/*"),
+    paste("mv", file.path(default_directory, "streamline_docker/*"),
           "/workspace")
   ),
   # if 
@@ -111,7 +114,9 @@ steps = c(
     # ,
     # volumes = default_volume_with_git
   )
-  
+)
+post_steps = c(
+  cr_buildstep_sa_key_delete_step(json_create_step)
 )
 
 # build <- cr_build_yaml(
@@ -128,5 +133,6 @@ steps = c(
 outbuild = cr_deploy_r(
   r_lines, pre_steps = steps,
   r_image = "ga_auth", prefix = "",
-  timeout = 3600L)
+  timeout = 3600L,
+  post_steps = post_steps)
 
