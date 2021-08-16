@@ -15,8 +15,8 @@ ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 ##########################################################
 
 RUN ls
-COPY token.rds /token.rds
-COPY package /package
+# COPY token.rds /token.rds
+# COPY package /package
 
 
 # SSH AUTH and GITHUB
@@ -30,15 +30,11 @@ COPY package /package
 ARG GPAT
 ENV GITHUB_PAT=$GPAT 
 
-# 
-#ARG PACKAGE_NAME
-# ENV PACKAGE=${PACKAGE_NAME}
-# this is because it's standard to go in "package"
 
 # remotes::system_requirements("ubuntu")
-
           
-RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
+# this is because it's standard to go in "package"
+RUN Rscript -e "if (dir.exists('package')) remotes::install_local('package', upgrade = FALSE)"
 
 # GCLOUD AUTH
 # as per https://cloud.google.com/build/docs/build-config-file-schema#volumes
@@ -46,9 +42,10 @@ RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
 # COPY service_account.json /service_account.json
 # COPY client.json /client.json
 
-RUN echo "GAR_CLIENT_JSON=client.json" >> /.Renviron
-RUN echo "GAR_AUTH_FILE=service_account.json" >> /.Renviron
-RUN echo "GCE_AUTH_FILE=service_account.json" >> /.Renviron
+# COPY .Renviron ~/.Renviron
+#RUN echo "GAR_CLIENT_JSON=client.json" >> /.Renviron
+#RUN echo "GAR_AUTH_FILE=service_account.json" >> /.Renviron
+#RUN echo "GCE_AUTH_FILE=service_account.json" >> /.Renviron
 
 
 CMD ["/init"]

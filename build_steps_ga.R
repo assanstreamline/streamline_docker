@@ -17,7 +17,7 @@ r_lines <- c(
   "file.exists('.Renviron')",
   "file.exists('client.json')",
   "file.exists('service_account.json')",
-  "if (file.exists()) readLines('.Renviron')",
+  "if (file.exists('.Renviron')) readLines('.Renviron')",
   'library(googleAuthR)',
   'library(googleAnalyticsR)',
   'library(gargle)',
@@ -107,6 +107,12 @@ steps = c(
     volumes = git_volume()
   ), # change the default (for the Docker)
   cr_buildstep_ls(default_directory),
+  cr_buildstep_echo_lines(file.path(default_directory, ".Renviron"),
+                          "GAR_CLIENT_JSON=client.json"),
+  cr_buildstep_echo_lines(file.path(default_directory, ".Renviron"),
+                          "GAR_AUTH_FILE=service_account.json"),
+  cr_buildstep_echo_lines(file.path(default_directory, ".Renviron"),
+                          "GCE_AUTH_FILE=service_account.json"),
   cr_buildstep(
     "docker",
     c("build",

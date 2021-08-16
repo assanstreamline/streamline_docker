@@ -176,6 +176,11 @@ cr_buildstep_ls = function(path, ...) {
   cr_buildstep_bash(cmd, ...)
 }
 
+cr_buildstep_echo_lines = function(path, lines, ...) {
+  cmd = paste0('echo "', lines, '" >> ', path)
+  cr_buildstep_bash(cmd, ...)
+}
+
 cr_buildstep_cat = function(path, ...) {
   cmd = paste0("cat ", path)
   cr_buildstep_bash(cmd, ...)
