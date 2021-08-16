@@ -4,39 +4,11 @@ FROM gcr.io/streamline-demo-311819/streamline-docker-repo/streamliner
 RUN mkdir -p ~/.cache/gargle
 RUN chmod 777 ~/.cache/gargle
 
+RUN mkdir -p /.cache/gargle
+RUN chmod 777 /.cache/gargle
+
 # I don't want warnings to be errors
 ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
-
-## Install gargle to make sure
-RUN install2.r --error \ 
-    -r 'http://cran.rstudio.com' \
-    gargle
-
-## Install packages from CRAN
-#    googleAuthR \ 
-RUN install2.r --error \ 
-    -r 'http://cran.rstudio.com' \
-    googleAnalyticsR \ 
-    searchConsoleR \ 
-    googleCloudRunner \
-    googleCloudStorageR \
-    bigQueryR \ 
-    zip \
-## install Github packages
-    && installGithub.r MarkEdmondson1234/youtubeAnalyticsR \
-                       MarkEdmondson1234/googleID \
-                       muschellij2/googleAuthR \
-                       cloudyr/googleCloudStorageR \
-                       cloudyr/googleComputeEngineR \
-## clean up
-    && rm -rf /tmp/downloaded_packages/ /tmp/*.rds
-
-                       # MarkEdmondson1234/googleCloudRunner 
-                       
-COPY Rprofile.site /usr/local/lib/R/etc/Rprofile.site
-
-# EVERYTHING UP to this is all good to make it's own docker
-CMD ["/init"]
 
 ##########################################################
 # TODO - gut above, tag and proper register
@@ -71,12 +43,12 @@ RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
 # GCLOUD AUTH
 # as per https://cloud.google.com/build/docs/build-config-file-schema#volumes
 # workspace already mounted
-# COPY service_account.json /home/$USER/service_account.json
-# COPY client.json /home/$USER/client.json
+# COPY service_account.json /service_account.json
+# COPY client.json /client.json
 
-RUN echo "GAR_CLIENT_JSON=client.json" >> /home/$USER/.Renviron
-RUN echo "GAR_AUTH_FILE=service_account.json" >> /home/$USER/.Renviron
-RUN echo "GCE_AUTH_FILE=service_account.json" >> /home/$USER/.Renviron
+RUN echo "GAR_CLIENT_JSON=client.json" >> /.Renviron
+RUN echo "GAR_AUTH_FILE=service_account.json" >> /.Renviron
+RUN echo "GCE_AUTH_FILE=service_account.json" >> /.Renviron
 
 
 CMD ["/init"]
