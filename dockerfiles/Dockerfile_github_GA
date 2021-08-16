@@ -16,7 +16,7 @@ RUN /streamline_scripts/rstudio_no_login.sh
 
 # need this because gargle caches
 RUN mkdir -p ~/.cache
-RUN chmod 777 ~/.cache'
+RUN chmod 777 ~/.cache
 
 # I don't want warnings to be errors
 ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
