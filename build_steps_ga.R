@@ -12,11 +12,12 @@ cr_region_set("us-east4")
 # image = "gcr.io/streamline-resources/streamliner:latest"
 r_lines <- c(
   "R.version",
+  "list.files()",
+  "getwd()",
   "file.exists('.Renviron')",
   "file.exists('client.json')",
   "file.exists('service_account.json')",
-  "readLines('.Renviron')",
-  "list.files()",
+  "if (file.exists()) readLines('.Renviron')",
   'library(googleAuthR)',
   'library(googleAnalyticsR)',
   'library(gargle)',

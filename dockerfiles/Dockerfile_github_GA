@@ -1,19 +1,5 @@
 FROM gcr.io/streamline-demo-311819/streamline-docker-repo/streamliner
 
-RUN apt-get -qqy update && apt-get install -qqy \
-        openssh-client \
-        qpdf
-        
-# same as streamliner
-COPY scripts /streamline_scripts
-RUN chmod +x /streamline_scripts/*.sh
-
-RUN /streamline_scripts/install_3rd_party.sh
-
-RUN /streamline_scripts/install_odbc_drivers.sh
-
-RUN /streamline_scripts/rstudio_no_login.sh
-
 # need this because gargle caches
 RUN mkdir -p ~/.cache/gargle
 RUN chmod 777 ~/.cache/gargle
@@ -85,12 +71,12 @@ RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
 # GCLOUD AUTH
 # as per https://cloud.google.com/build/docs/build-config-file-schema#volumes
 # workspace already mounted
-# COPY service_account.json ~/service_account.json
-# COPY client.json ~/client.json
+# COPY service_account.json /home/$USER/service_account.json
+# COPY client.json /home/$USER/client.json
 
-RUN echo "GAR_CLIENT_JSON=client.json" >> .Renviron
-RUN echo "GAR_AUTH_FILE=service_account.json" >> .Renviron
-RUN echo "GCE_AUTH_FILE=service_account.json" >> .Renviron
+RUN echo "GAR_CLIENT_JSON=client.json" >> /home/$USER/.Renviron
+RUN echo "GAR_AUTH_FILE=service_account.json" >> /home/$USER/.Renviron
+RUN echo "GCE_AUTH_FILE=service_account.json" >> /home/$USER/.Renviron
 
 
 CMD ["/init"]
