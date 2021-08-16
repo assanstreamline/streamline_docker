@@ -88,9 +88,9 @@ RUN Rscript -e "remotes::install_local('package', upgrade = FALSE)"
 # COPY service_account.json ~/service_account.json
 # COPY client.json ~/client.json
 
-RUN echo "GAR_CLIENT_JSON=client.json" >> ~/.Renviron
-RUN echo "GAR_AUTH_FILE=service_account.json" >> ~/.Renviron
-RUN echo "GCE_AUTH_FILE=service_account.json" >> ~/.Renviron
+RUN echo "GAR_CLIENT_JSON=client.json" >> .Renviron
+RUN echo "GAR_AUTH_FILE=service_account.json" >> .Renviron
+RUN echo "GCE_AUTH_FILE=service_account.json" >> .Renviron
 
 
 CMD ["/init"]
