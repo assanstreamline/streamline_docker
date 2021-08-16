@@ -15,8 +15,8 @@ ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 ##########################################################
 
 RUN ls
-# COPY token.rds /token.rds
-# COPY package /package
+COPY token.rds /token.rds
+COPY package /package
 
 
 # SSH AUTH and GITHUB
