@@ -31,6 +31,11 @@ RUN install2.r --error \
     googleCloudRunner \
     googleCloudStorageR \
     bigQueryR \ 
+    clock \
+    bigrquery \ 
+    sp \
+    geosphere \ 
+    fuzzyjoin \ 
     zip \
 ## install Github packages
     && installGithub.r MarkEdmondson1234/youtubeAnalyticsR \
@@ -48,8 +53,8 @@ COPY Rprofile.site /usr/local/lib/R/etc/Rprofile.site
 EXPOSE 8787
 
 # need this because gargle caches
-RUN mkdir ~/.cache
-RUN chmod 777 ~/.cache
+RUN mkdir -p ~/.cache/gargle
+RUN chmod 777 ~/.cache/gargle
 
 
 CMD ["/init"]

@@ -18,6 +18,8 @@ r_lines <- c(
   'token = readRDS("token.rds")',
   'print(token)',
   'options(gargle_verbosity = "debug")',
+  'options(gargle_oauth_cache = FALSE)',
+  'token$cache_path = NULL',
   paste0("streamline.demo::google_analytics_pull_raw(", 
          "email = 'muschellij2@gmail.com', token = token)")
 )
