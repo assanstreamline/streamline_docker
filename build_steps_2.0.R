@@ -5,11 +5,6 @@ default_directory = "/workspace"
 default_volume = make_volume(name = "default", path = default_directory)
 default_volume_with_git = c(git_volume(), default_volume)
 
-# Private keys/auth
-# https://cloud.google.com/iam/docs/creating-managing-service-account-keys#getting_a_service_account_key
-# You can only get the private key data for a service account key when the key is first created.
-
-
 
 cr_project_set("streamline-demo-311819")
 cr_region_set("us-east4")

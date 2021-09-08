@@ -13,6 +13,10 @@ sudo apt-get install -y odbc-postgresql
 # # SQLite ODBC Drivers
 sudo apt-get install -y libsqliteodbc
 
+# # MySQL ODBC Drivers
+sudo apt-get install -y libmyodbc
+
+
 # Install SQL Server odbc 17
 # download from https://docs.microsoft.com/en-us/sql/connect/odbc/linux-mac/installing-the-microsoft-odbc-driver-for-sql-server?view=sql-server-ver15
 # determine release

@@ -18,6 +18,27 @@ cr_buildstep_secret_json = function(
 }
 
 
+# cr_buildstep_app_cred = function(
+#   path = "/workspace/whoami.txt", ...) {
+#   
+#   steps = cr_buildstep_echo("$$GOOGLE_APPLICATION_CREDENTIALS")
+#   script <- sprintf(
+#     "gcloud auth application-default login"
+#   )
+#   
+#   # ~/.config/gcloud/application_default_credentials.json
+#   x = cr_buildstep(
+#     args = c("-c", script),
+#     name = "gcr.io/cloud-builders/gcloud",
+#     entrypoint = "bash",
+#     ...
+#   )
+#   attr(x, "path") = path
+#   x
+# }
+
+
+
 
 cr_buildstep_touch = function(
   files, 
