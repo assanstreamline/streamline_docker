@@ -56,6 +56,7 @@ EXPOSE 8787
 RUN mkdir -p ~/.cache/gargle
 RUN chmod 777 ~/.cache/gargle
 
+RUN /streamline_scripts/install_gcloud.sh
 
 CMD ["/init"]
 
