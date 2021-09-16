@@ -2,18 +2,77 @@ make_volume = function(name, path) {
   list(list(name = name, path = path))
 }
 
+default_volume = function(default_directory = "/workspace") {
+  make_volume(name = "default", path = default_directory)
+}
+
+default_volume_with_git = function(...) {
+  default_volume = default_volume(...)
+  c(git_volume(), default_volume)
+}
+
+cr_check_config = function(project = NULL,
+                           region = NULL,
+                           email = NULL) {
+  if (is.null(project)) {
+    project = cr_project_get()
+  } else {
+    cr_project_set(project)
+  }
+  if (is.null(region)) {
+    region = cr_region_get()
+  } else {
+    cr_region_set(region)
+  }
+  if (is.null(email)) {
+    # using cr_email_get as a failing stop
+    email = try({cr_email_get()}, silent = TRUE)
+    gar_auth_file = Sys.getenv("GAR_AUTH_FILE", unset = NA)
+    gce_auth_file = Sys.getenv("GCE_AUTH_FILE", unset = NA)
+    auth_files = c(gce_auth_file, gar_auth_file)
+    auth_files = na.omit(auth_files)
+    
+    if (inherits(email, "try-error") && 
+        length(auth_files) > 0 &&
+        any(file.exists(auth_files))) {
+      json_file = auth_files[1]
+      email = jsonlite::read_json(json_file)$client_email
+      if (is.null(email)) {
+        email = cr_email_get()
+      }
+      cr_email_set(email)
+    } else {
+      # email = "default"
+      # if (gargle:::detect_gce()) {
+      #   token = gargle::credentials_gce()
+      # }
+      email = cr_email_get()
+    }
+  } else {
+    cr_email_set(email)
+  }
+  L = list(
+    project = project,
+    region = region,
+    email = email
+  )
+  
+}
 
 cr_buildstep_secret_json = function(
   secret, 
   default_directory = "/workspace", 
   # volumes = make_volume("default", default_directory),
   ...) {
-  decrypted = fs::path(default_directory, paste0(secret, ".json"))
-  x = cr_buildstep_secret(
-    secret = secret, decrypted = decrypted, 
-    # volumes = volumes, 
-    ...)
-  attr(x, "json_file") = decrypted
+  args = list(...)
+  stopifnot(length(secret) == 1 && is.character(secret))
+  args$secret = secret
+  if (!"decrypted" %in% names(args)) {
+    args$decrypted = fs::path(default_directory, 
+                              paste0(secret, ".json"))
+  }
+  x = do.call(cr_buildstep_secret, args = args)
+  attr(x, "json_file") = args$decrypted
   x
 }
 
@@ -37,22 +96,56 @@ cr_buildstep_secret_json = function(
 #   x
 # }
 
+cr_buildstep_touch_r_file = function(
+  path = "/workspace/token.rds",
+  ...) {
+  
+  ext = tools::file_ext(path)
+  ext = tolower(ext)
+  rcode = switch(
+    ext,
+    rds = sprintf('saveRDS(NULL, file = "%s")', path),
+    rda = sprintf('save(file = "%s")', path)
+  )
+  if (is.null(rcode)) {
+    stop("Using touch for R file, but not rds/rda!")
+  }
+  cr_buildstep_r(rcode, 
+                 ...)
+}
 
-
-
+#' @examples 
+#' cr_buildstep_touch(c("blah.json", "blah.rds", "blah.rda", "blah.txt"))
 cr_buildstep_touch = function(
   files, 
   default_directory = "/workspace", 
   # volumes = make_volume("default", default_directory), 
   ...) {
   files = fs::path(default_directory, files)
-  cmds = paste("touch", files)
-  sh_file = tempfile(fileext = ".sh")
-  writeLines(cmds, sh_file)
-  cr_buildstep_bash(
-    bash_script = sh_file, 
-    # volumes = volumes, 
-    ...)
+  exts = tools::file_ext(files)
+  
+  is_r_file = tolower(exts) %in% c("rds", "rda")
+  r_files = files[is_r_file]
+  files = files[!is_r_file]
+  
+  steps = NULL
+  if (!all(is_r_file)) {
+    cmds = paste("touch", files)
+    sh_file = tempfile(fileext = ".sh")
+    writeLines(cmds, sh_file)
+    steps = cr_buildstep_bash(
+      bash_script = sh_file, 
+      ...)
+  }
+  if (any(is_r_file)) {
+    steps = c(
+      steps,
+      unname(sapply(r_files, cr_buildstep_touch_r_file, 
+                    ... = ...)
+      )
+    )
+  }
+  steps
 }
 
 
@@ -154,7 +247,7 @@ cr_buildstep_sa_key_delete = function(
     cmd = sprintf(
       paste0('writeLines(jsonlite::read_json("%s")$private_key_id, ', 
              '"/workspace/private_id.txt")'),
-             path
+      path
     )
     gsteps = c(gsteps, 
                cr_buildstep_r(r = cmd, name = "verse")
@@ -189,7 +282,42 @@ cr_buildstep_sa_key_delete_step = function(json_step, ...) {
     ...)
 }
 
-
+cr_gce_setup = function(region = NULL,
+                        service_account = "default",
+                        cache = FALSE) {
+  if (!metagce::detect_gce()) {
+    stop("cr_gce_setup only works in GCE!")
+  }
+  if (is.null(region)) {
+    region = metagce::gce_instance_region()
+  }
+  project = metagce::gce_project()
+  cr_project_set(project)
+  
+  cr_region_set(region)
+  # I don't want caching, even if in interactive session
+  # as this can be called by any GCE machine
+  opts = options()
+  options(httr_oauth_cache = cache)
+  # googleAuthR::gar_gce_auth takes 2 steps away
+  token = googleAuthR::gar_gce_auth(
+    service_account = service_account
+  )
+  # token = gargle::credentials_gce()
+  # googleAuthR::gar_auth(token = token)
+  # reset the auth
+  options(opts)
+  stopifnot(any(token$params$scope %in% 
+                  "https://www.googleapis.com/auth/cloud-platform"))
+  email = token$params$service_account
+  cr_email_set(email)
+  L = list(
+    project = project,
+    region = region,
+    email = email,
+    token = token
+  )
+}
 
 
 cr_buildstep_ls = function(path, ...) {
