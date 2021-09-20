@@ -1,0 +1,19 @@
+FROM gcr.io/streamline-resources/streamline-docker-repo/streamliner
+
+# fix due to https://github.com/r-lib/remotes/pull/630
+RUN Rscript /workspace/deploy/check_remotes_version.R
+
+# Run above instead of 
+# RUN Rscript check_remotes_version.R
+# so you don't need to figure out deploy/subdirectory
+RUN git clone git@github.com:StreamlineDataScience/gcloud
+RUN git clone git@github.com:StreamlineDataScience/metagce
+
+RUN Rscript -e "remotes::install_git('git@github.com:StreamlineDataScience/gcloud')"
+
+RUN Rscript -e "remotes::install_git('git@github.com:StreamlineDataScience/metagce')"
+  
+RUN rm -rf ~/.ssh/id_*
+RUN rm -rf /root/.ssh/id_*
+
+CMD ["/init"]

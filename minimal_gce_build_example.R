@@ -5,6 +5,6 @@ source("cr_helpers.R")
 # the build 
 setup = cr_gce_setup()
 files = c("blah.txt")
-steps = cr_buildstep_touch(files, bash_source = "local")
+steps = cr_buildstep_bash("ls /workspace")
 build = cr_build_yaml(steps)
 run = cr_build(build)
