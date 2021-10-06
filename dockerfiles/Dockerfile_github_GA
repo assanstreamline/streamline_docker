@@ -1,4 +1,4 @@
-FROM gcr.io/streamline-resources/streamliner
+FROM us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner
 
 # need this because gargle caches
 RUN mkdir -p ~/.cache/gargle

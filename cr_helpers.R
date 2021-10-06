@@ -148,6 +148,14 @@ cr_buildstep_touch = function(
   steps
 }
 
+cr_buildstep_mkdir = function(
+  path, 
+  args = NULL,
+  ...) {
+  cmd = paste("mkdir -p", paste(path, collapse = " "))
+  cr_buildstep_bash(cmd, ...)
+}
+
 
 cr_buildstep_secret_binary <- function(
   secret,
@@ -320,8 +328,9 @@ cr_gce_setup = function(region = NULL,
 }
 
 
-cr_buildstep_ls = function(path, ...) {
-  cmd = paste0("cd ", path, "; ls")
+cr_buildstep_ls = function(path, args = NULL, ...) {
+  cmd = paste(c(paste0("cd ", path, ";"), "ls", args),
+              collapse = " ")
   cr_buildstep_bash(cmd, ...)
 }
 
@@ -339,4 +348,53 @@ cr_buildstep_cat = function(path, ...) {
 cr_buildstep_echo = function(string, ...) {
   cmd = paste0("echo ", string)
   cr_buildstep_bash(cmd, ...)
+}
+
+cr_buildstep_docker_auth = function(
+  registry,
+  ...) {
+  cr_buildstep_gcloud(
+    "gcloud",
+    c("gcloud", "auth", "configure-docker", 
+      paste(registries, collapse = ",")
+    ),
+    ...
+  )
+}
+
+cr_buildstep_docker_auth_location = function(
+  location = "us",
+  ...) {
+  registry = sapply(location, function(x) {
+    paste0(x, c("-docker.pkg.dev", ".gcr.io"))
+  })
+  registry = unname(c(unlist(registry)))
+  cr_buildstep_docker_auth(
+    registry = registry,
+    ...
+  )
+
+}
+
+cr_buildstep_git_packages = function(
+  repos, 
+  path = "/workspace/deploy/packages",
+  clone_args = NULL,
+  ...) {
+  git_steps = sapply(repos, function(repo) {
+    cr_buildstep_git(
+      git_args = c(
+        "clone", 
+        clone_args,
+        paste0("git@github.com:", repo),
+        file.path(path, basename(repo))
+      ),
+      ...
+    )
+  })
+  git_steps = unname(git_steps)
+  c(
+    cr_buildstep_mkdir(path),
+    git_steps
+  )
 }
