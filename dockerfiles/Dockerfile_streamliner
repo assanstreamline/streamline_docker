@@ -58,6 +58,9 @@ RUN chmod 777 ~/.cache/gargle
 
 RUN /streamline_scripts/install_gcloud.sh
 
+RUN /rocker_scripts/install_shiny_server.sh
+EXPOSE 3838
+
 CMD ["/init"]
 
 

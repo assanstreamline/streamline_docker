@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:experimental
+FROM us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner
+# See https://stackoverflow.com/questions/18136389/using-ssh-keys-inside-docker-container
+
+
+COPY check_remotes_version.R /
+
+# fix due to https://github.com/r-lib/remotes/pull/630
+RUN Rscript /check_remotes_version.R
+
+# This is how you solve this;
+# https://stackoverflow.com/questions/48274288/passing-files-from-google-cloud-container-builder-to-docker-build-task
+RUN mkdir -m 700 -p /root/.ssh/
+
+COPY .ssh/* /root/.ssh/
+RUN eval $(ssh-agent) && \
+    chmod 600 /root/.ssh/id_rsa && \
+    echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
+    ssh-add /root/.ssh/id_rsa
+
+RUN git config --global user.name "googleCloudRunner" && \
+    git config --global user.email "cr_buildstep_gitsetup@googleCloudRunner.com"
+
+RUN git clone git@github.com:StreamlineDataScience/gcloud
+
+RUN Rscript -e "remotes::install_git('git@github.com:StreamlineDataScience/gcloud')"
+
+RUN Rscript -e "remotes::install_git('git@github.com:StreamlineDataScience/metagce')"
+
+RUN rm -rf ~/.ssh/id_*
+RUN rm -rf /root/.ssh/id_*
+
+CMD ["/init"]

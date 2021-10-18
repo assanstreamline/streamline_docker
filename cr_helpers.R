@@ -68,8 +68,9 @@ cr_buildstep_secret_json = function(
   stopifnot(length(secret) == 1 && is.character(secret))
   args$secret = secret
   if (!"decrypted" %in% names(args)) {
-    args$decrypted = fs::path(default_directory, 
-                              paste0(secret, ".json"))
+    args$decrypted = file.path(default_directory, 
+                              paste0(secret, ".json"), 
+                              fsep = "/")
   }
   x = do.call(cr_buildstep_secret, args = args)
   attr(x, "json_file") = args$decrypted
@@ -356,7 +357,7 @@ cr_buildstep_docker_auth = function(
   cr_buildstep_gcloud(
     "gcloud",
     c("gcloud", "auth", "configure-docker", 
-      paste(registries, collapse = ",")
+      paste(registry, collapse = ",")
     ),
     ...
   )
