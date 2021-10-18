@@ -1,0 +1,160 @@
+---
+title: "Create a Virtual Machine"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(googleCloudRunner)
+library(shiny)
+library(metagce)
+library(googleAuthR)
+library(dplyr)
+library(tibble)
+library(googleComputeEngineR)
+
+project = metagce::gce_project()
+googleComputeEngineR::gce_global_project(project = project)
+
+
+options(httr_oauth_cache = FALSE)
+token = gargle::credentials_gce()
+googleAuthR::gar_auth(token = token, cache = FALSE)
+
+zones = c("us-east4-c", 
+          googleCloudRunner::cr_zones)
+zones = unique(zones)
+
+
+```
+
+
+Inputs {.sidebar}
+-------------------------------------
+
+```{r}
+textInput(
+  "vm_name", "Name for VM (please check running):"
+)
+
+selectInput(inputId = "zone", label = "Zone to Make VM:", choices = zones, selected = zones[1])
+
+numericInput("gb", "Disk size (Gb)", value = 80, min = 1, max = 1000, step = 1L)
+
+textInput(
+  "dynamic_image", "Docker Image to Run:", 
+  value = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner"
+)
+uiOutput("machiner")
+
+
+actionButton("create_image", "Create Image")
+
+```
+
+Column
+-------------------------------------
+
+### Description of Machine Types
+
+```{r}
+machines = reactive({
+  x = gcloud::gcloud_compute_machineTypes_list(zone = input$zone)
+  x = x[is.na(x$deprecated$state),]
+  x = x %>% 
+    mutate(memory = round(memoryMb/1024)) %>% 
+    select(name, guestCpus, memory, description)
+})
+output$machiner = renderUI({
+  x = machines()
+  selectizeInput("machine_type", label = "Machine Type", 
+                 choices = x$name, selected = "n1-standard-4")
+})
+renderDataTable({
+  machines()
+}, options = list(dom = 't'))
+```
+
+### Current VMs Running
+
+```{r}
+renderTable({
+  the_list <- gce_list_instances(project = project, zone = input$zone)
+  df = tibble::as_tibble(the_list)
+  df = df$items
+  if (!is.null(df) && nrow(df) > 0) {
+    df = df %>% 
+      mutate(zone = basename(zone),
+             machineType = basename(machineType),
+             externalIP = googleComputeEngineR:::extract_ip(the_list)
+      )
+    
+    print_cols <- c("name","machineType","status","zone",
+                    "externalIP","creationTimestamp")
+    
+    df = df[, print_cols]
+  }
+  df
+})
+# 
+
+```
+
+### Chart C
+
+```{r}
+run_check <- reactive({
+  print("Running Checks")
+  vm_good = try({googleComputeEngineR:::validate_vm_name(input$vm_name)})
+  if (inherits(vm_good, "try-error")) {
+    print("Your VM name is not of the form lowercase with underscores")
+    print(attr(vm_good, "condition"))
+  } 
+  check = !inherits(vm_good, "try-error")
+  if (check) {
+    if (input$vm_name %in% machines()$name) {
+      print("Your VM name is already taken, please rename")
+    }
+    check = check && !input$vm_name %in% machines()$name
+  } 
+  nc_gt = function(x) {
+    length(x) > 0 && nchar(x) > 0
+  }
+  check = check && !is.null(input$dynamic_image)
+  return(check)
+})
+
+renderPrint({
+  val = run_check()
+  print(paste0("If run now, the check is: ", val))
+})
+
+observeEvent(input$create_image, {
+  check = run_check()
+  if (check) {
+    print(input)
+    print(project)
+    print(input$zone)
+    print(input$vm_name)
+    print(input$dynamic_image)
+    print(input$gb)
+    region = gcloud:::region_from_zone(input$zone)
+    gcloud::gcloud_compute_nat_create(region = region, verbose = 2)
+    vm <- googleComputeEngineR::gce_vm(
+      template = "rstudio-noauth",
+      name = input$vm_name,
+      network = googleComputeEngineR::gce_make_network(externalIP = "none"),
+      dynamic_image = input$dynamic_image,
+      predefined_type = input$machine_type,
+      disk_size_gb = input$gb,
+      project = project,
+      zone = input$zone)
+    print(vm)
+  }
+})
+```
+

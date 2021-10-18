@@ -13,5 +13,4 @@ RUN Rscript /install_packages_directory.R
 
 RUN rm -rf /packages
 
-
 CMD ["/init"]

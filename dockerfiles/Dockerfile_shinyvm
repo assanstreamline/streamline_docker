@@ -1,0 +1,8 @@
+FROM us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner-packages
+
+RUN Rscript -e "remotes::install_github('muschellij2/googleCloudRunner')"
+RUN Rscript -e "remotes::install_github('muschellij2/googleComputeEngineR')"
+
+COPY apps/* /srv/shiny-server/
+
+CMD ["/init"]
