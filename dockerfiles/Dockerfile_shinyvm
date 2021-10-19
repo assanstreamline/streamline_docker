@@ -6,7 +6,8 @@ RUN install2.r --error \
     shiny \
     shinydashboard \
     DT \
-    flexdashboard
+    flexdashboard \
+    shinyjs 
 
 RUN Rscript -e "remotes::install_github('muschellij2/googleCloudRunner')"
 RUN Rscript -e "remotes::install_github('muschellij2/googleComputeEngineR')"

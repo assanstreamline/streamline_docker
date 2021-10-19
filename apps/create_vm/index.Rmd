@@ -17,6 +17,7 @@ library(dplyr)
 library(tibble)
 library(googleComputeEngineR)
 library(DT)
+library(shinyjs)
 ```
 
 ```{r auth, include = FALSE}
@@ -48,7 +49,9 @@ zones = unique(zones)
 Inputs {.sidebar}
 -------------------------------------
 
+
 ```{r}
+shinyjs::useShinyjs(rmd = TRUE)
 selectInput(inputId = "project", label = "Project:", choices = projects, selected = projects[1])
 
 textInput(
@@ -66,14 +69,14 @@ textInput(
 uiOutput("machiner")
 
 
-actionButton("create_image", "Create Image")
-
+shinyjs::disabled(actionButton("create_image", "Create Image"))
 ```
 
 Column {data-width=600}
 -------------------------------------
 
 ```{r, include=FALSE}
+shinyjs::disable("create_image")
 reactive({
   gcloud::gcloud_project_set(project = input$project)
   googleComputeEngineR::gce_global_project(project = input$project)
@@ -120,7 +123,7 @@ Column {data-width=400}
 ### Current VMs Running
 
 ```{r}
-renderTable({
+existing_vms = reactive({
   the_list <- try({
     gce_list_instances(project = input$project, zone = input$zone)
   })
@@ -141,6 +144,10 @@ renderTable({
   }
   df
 })
+renderTable({
+  df = existing_vms()
+  df
+})
 # 
 
 ```
@@ -157,15 +164,20 @@ run_check <- reactive({
   } 
   check = !inherits(vm_good, "try-error")
   if (check) {
-    if (input$vm_name %in% machines()$name) {
+    if (input$vm_name %in% existing_vms()$name) {
       print("Your VM name is already taken, please rename")
     }
-    check = check && !input$vm_name %in% machines()$name
+    check = check && !input$vm_name %in% existing_vms()$name
   } 
   nc_gt = function(x) {
     length(x) > 0 && nchar(x) > 0
   }
   check = check && !is.null(input$dynamic_image)
+  if (check) {
+    shinyjs::enable("create_image")
+  } else {
+    shinyjs::disable("create_image")
+  }
   return(check)
 })
 
@@ -173,6 +185,7 @@ renderPrint({
   val = run_check()
   print(paste0("If run now, the check is: ", val))
 })
+
 
 observeEvent(input$create_image, {
   check = run_check()
