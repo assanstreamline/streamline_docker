@@ -72,16 +72,19 @@ actionButton("create_image", "Create Image")
 Column
 -------------------------------------
 
-### Description of Machine Types
-
-```{r}
+```{r, include=FALSE}
 reactive({
   gcloud::gcloud_project_set(project = input$project)
   googleComputeEngineR::gce_global_project(project = input$project)
 })
+```
 
+### Description of Machine Types
+
+```{r}
 machines = reactive({
-  x = gcloud::gcloud_compute_machineTypes_list(zone = input$zone)
+  x = gcloud::gcloud_compute_machineTypes_list(
+    zone = input$zone)
   x = x[is.na(x$deprecated$state),]
   x = x %>% 
     mutate(memory = round(memoryMb/1024)) %>% 
@@ -161,7 +164,8 @@ observeEvent(input$create_image, {
     print(input$dynamic_image)
     print(input$gb)
     region = gcloud:::region_from_zone(input$zone)
-    gcloud::gcloud_compute_nat_create(region = region, verbose = 2)
+    gcloud::gcloud_compute_nat_create(region = region, verbose = 2,
+                                      project = input$project)
     vm <- googleComputeEngineR::gce_vm(
       template = "rstudio-noauth",
       name = input$vm_name,
