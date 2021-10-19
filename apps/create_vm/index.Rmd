@@ -16,15 +16,26 @@ library(googleAuthR)
 library(dplyr)
 library(tibble)
 library(googleComputeEngineR)
+```
 
-project = metagce::gce_project()
-googleComputeEngineR::gce_global_project(project = project)
-
-
+```{r auth, include = FALSE}
 options(httr_oauth_cache = FALSE)
 token = gargle::credentials_gce()
 googleAuthR::gar_auth(token = token, cache = FALSE)
+```
 
+```{r project_setup, include=FALSE}
+project = metagce::gce_project()
+if (nchar(project) == 0) {
+  projects = gcloud::gcloud_projects_list()$projectId
+  project = projects[1]
+} else {
+  projects = project
+}
+```
+
+
+```{r, include = FALSE}
 zones = c("us-east4-c", 
           googleCloudRunner::cr_zones)
 zones = unique(zones)
@@ -37,6 +48,8 @@ Inputs {.sidebar}
 -------------------------------------
 
 ```{r}
+selectInput(inputId = "project", label = "Project:", choices = projects, selected = projects[1])
+
 textInput(
   "vm_name", "Name for VM (please check running):"
 )
@@ -62,6 +75,11 @@ Column
 ### Description of Machine Types
 
 ```{r}
+reactive({
+  gcloud::gcloud_project_set(project = input$project)
+  googleComputeEngineR::gce_global_project(project = input$project)
+})
+
 machines = reactive({
   x = gcloud::gcloud_compute_machineTypes_list(zone = input$zone)
   x = x[is.na(x$deprecated$state),]
@@ -83,7 +101,7 @@ renderDataTable({
 
 ```{r}
 renderTable({
-  the_list <- gce_list_instances(project = project, zone = input$zone)
+  the_list <- gce_list_instances(project = input$project, zone = input$zone)
   df = tibble::as_tibble(the_list)
   df = df$items
   if (!is.null(df) && nrow(df) > 0) {
@@ -137,7 +155,7 @@ observeEvent(input$create_image, {
   check = run_check()
   if (check) {
     print(input)
-    print(project)
+    print(input$project)
     print(input$zone)
     print(input$vm_name)
     print(input$dynamic_image)
@@ -151,7 +169,7 @@ observeEvent(input$create_image, {
       dynamic_image = input$dynamic_image,
       predefined_type = input$machine_type,
       disk_size_gb = input$gb,
-      project = project,
+      project = input$project,
       zone = input$zone)
     print(vm)
   }

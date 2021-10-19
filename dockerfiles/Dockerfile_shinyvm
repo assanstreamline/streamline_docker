@@ -1,8 +1,19 @@
+# syntax=docker/dockerfile:experimental
 FROM us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner-packages
+
+RUN install2.r --error \ 
+    -r 'http://cran.rstudio.com' \
+    shiny \
+    shinydashboard \
+    DT \
+    flexdashboard
 
 RUN Rscript -e "remotes::install_github('muschellij2/googleCloudRunner')"
 RUN Rscript -e "remotes::install_github('muschellij2/googleComputeEngineR')"
 
-COPY apps/* /srv/shiny-server/
+COPY apps/ /srv/shiny-server/
+
+EXPOSE 3838
+EXPOSE 8787
 
 CMD ["/init"]

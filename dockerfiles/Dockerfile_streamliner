@@ -36,6 +36,7 @@ RUN install2.r --error \
     sp \
     geosphere \ 
     fuzzyjoin \ 
+    flexdashboard \
     zip \
 ## install Github packages
     && installGithub.r MarkEdmondson1234/youtubeAnalyticsR \

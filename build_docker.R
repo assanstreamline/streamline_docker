@@ -1,5 +1,6 @@
 library(googleCloudRunner)
 library(trailrun)
+source("cr_helpers.R")
 setup = cr_gce_setup()
 options("googleAuthR.verbose" = 3)
 # # need this because otherwise recursive copying
@@ -9,7 +10,6 @@ options("googleAuthR.verbose" = 3)
 # file.remove("~/streamline_docker/Dockerfile")
 # cr_deploy_docker(
 #   local = "~/streamline_docker",
-#   # image_name = "streamline-docker-repo/streamliner",
 #   image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner",
 #   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
 #   kaniko_cache = FALSE,
@@ -36,13 +36,11 @@ pre_steps = c(
 
 result = cr_deploy_docker(
   local = "~/streamline_docker",
-  # image_name = "streamline-docker-repo/streamliner-packages",
   image_name = "us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner-packages",
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_packages",
   timeout = 3600L,
   pre_steps = pre_steps,
   kaniko_cache = FALSE,
-  # build_args = c("--ssh", "default=/root/.ssh/id_rsa"),
   volumes = git_volume()
 )
 # https://gcr.io/streamline-resources/streamline-docker-repo/streamliner-packages
