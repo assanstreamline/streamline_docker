@@ -76,6 +76,8 @@ Column {data-width=600}
 -------------------------------------
 
 ```{r, include=FALSE}
+values = reactiveValues(refresh = FALSE,
+                        vm = NULL)
 shinyjs::disable("create_image")
 reactive({
   gcloud::gcloud_project_set(project = input$project)
@@ -124,6 +126,7 @@ Column {data-width=400}
 
 ```{r}
 existing_vms = reactive({
+  values$refresh = isolate(values$refresh)
   the_list <- try({
     gce_list_instances(project = input$project, zone = input$zone)
   })
@@ -145,6 +148,8 @@ existing_vms = reactive({
   df
 })
 renderTable({
+  values$refresh = isolate(!values$refresh)
+  input$vm_name
   df = existing_vms()
   df
 })
@@ -152,7 +157,7 @@ renderTable({
 
 ```
 
-### Chart C
+### Diagnostics
 
 ```{r}
 run_check <- reactive({
@@ -181,10 +186,6 @@ run_check <- reactive({
   return(check)
 })
 
-renderPrint({
-  val = run_check()
-  print(paste0("If run now, the check is: ", val))
-})
 
 
 observeEvent(input$create_image, {
@@ -210,7 +211,16 @@ observeEvent(input$create_image, {
       project = input$project,
       zone = input$zone)
     print(vm)
+    values$vm = vm
+    values$refresh <- isolate(!values$refresh)
   }
+})
+
+
+renderPrint({
+  val = run_check()
+  print(paste0("If run now, the check is: ", val))
+  print(values$vm)
 })
 ```
 

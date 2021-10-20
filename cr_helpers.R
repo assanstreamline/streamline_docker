@@ -383,15 +383,29 @@ cr_buildstep_git_packages = function(
   clone_args = NULL,
   ...) {
   git_steps = sapply(repos, function(repo) {
-    cr_buildstep_git(
+    res = remotes:::git_remote(repo)
+    repo = res$url
+    ref = res$ref
+    out_path = file.path(path, basename(repo))
+    step = cr_buildstep_git(
       git_args = c(
         "clone", 
         clone_args,
-        paste0("git@github.com:", repo),
-        file.path(path, basename(repo))
+        repo,        
+        out_path
       ),
       ...
     )
+    if (!is.null(ref) && !ref %in% c("master", "main", "HEAD")) {
+      step = c(
+        step, 
+        cr_buildstep_git(
+          git_args = c("-C", out_path, "checkout", ref),
+          ...
+        )
+      )
+    }
+    step
   })
   git_steps = unname(git_steps)
   c(
