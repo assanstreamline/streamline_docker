@@ -63,9 +63,9 @@ RUN /rocker_scripts/install_shiny_server.sh
 EXPOSE 3838
 
 ## in UNSTABLE, we will install everything from source by default:
-CRAN=https://cran.r-project.org
+ENV CRAN=https://cran.r-project.org
 ## Add a default CRAN mirror
-echo "options(repos = c(CRAN = '${CRAN}'), download.file.method = 'libcurl')" >> ${R_HOME}/etc/Rprofile.site
+RUN echo "options(repos = c(CRAN = '${CRAN}'), download.file.method = 'libcurl')" >> ${R_HOME}/etc/Rprofile.site
 
 CMD ["/init"]
 
