@@ -27,8 +27,8 @@ pre_steps = c(
   cr_buildstep_gitsetup("ssh-deploy-key"),
   cr_buildstep_git_packages(
     path = "/workspace/deploy/packages",
-    repos = c("StreamlineDataScience/gcloud",
-              "StreamlineDataScience/metagce")
+    repos = c("git@github.com:StreamlineDataScience/gcloud",
+              "git@github.com:StreamlineDataScience/metagce")
   )
 )
 

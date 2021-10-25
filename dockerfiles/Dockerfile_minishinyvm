@@ -11,9 +11,11 @@ RUN sudo apt-get install -y libgl1-mesa-dev make libmagic-dev gdal-bin libxml2-d
 
 RUN sudo apt-get install -y libudunits2-dev libgmp-dev libcurl4-openssl-dev libmysqlclient-dev libtiff-dev libpng-dev libglu1-mesa-dev libapparmor-dev libglpk-dev git-core
 
-RUN sudo apt-get install -y apt-transport-https ca-certificates gnupg
+RUN sudo apt-get install -y apt-transport-https ca-certificates gnupg curl
+
 
 RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 
 RUN sudo apt-get -qq update && sudo apt-get install -y google-cloud-sdk
