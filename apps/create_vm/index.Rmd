@@ -9,9 +9,10 @@ runtime: shiny
 
 ```{r setup, include=FALSE}
 library(flexdashboard)
-library(googleCloudRunner)
+# library(googleCloudRunner)
 library(shiny)
 library(metagce)
+library(gcloud)
 library(googleAuthR)
 library(dplyr)
 library(tibble)
@@ -39,10 +40,8 @@ if (nchar(project) == 0) {
 
 ```{r, include = FALSE}
 zones = c("us-east4-c", 
-          googleCloudRunner::cr_zones)
+          gcloud::gcloud_compute_zones_list()$name)
 zones = unique(zones)
-
-
 ```
 
 
