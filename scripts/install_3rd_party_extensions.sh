@@ -1,7 +1,10 @@
-# Install req for ChemmineOB
+#!/bin/bash
 OS_CODENAME=$(lsb_release -cs)
-export DEBIAN_FRONTEND=noninteractive
+DEBIAN_FRONTEND=noninteractive
+
+# Install req for ChemmineOB
 sudo apt-get update -qq
+
 sudo apt-get install -y software-properties-common || true
 
 if [ "${OS_CODENAME}" == "focal" ]; then

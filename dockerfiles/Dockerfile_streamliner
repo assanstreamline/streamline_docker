@@ -1,6 +1,7 @@
 FROM rocker/verse
 
-RUN apt-get -qqy update && apt-get install -qqy \
+RUN apt-get -qqy update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -qqy \
         openssh-client \
         qpdf
         
