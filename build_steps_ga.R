@@ -5,20 +5,19 @@
 
 # cr_email_set
 library(googleCloudRunner)
-source("cr_helpers.R")
+library(trailrun)
+library(gcloud)
+# source("cr_helpers.R")
 default_directory = "/workspace"
-
-default_volume_with_git = default_volume_with_git()
-default_volume = default_volume()
 
 # Private keys/auth
 # https://cloud.google.com/iam/docs/creating-managing-service-account-keys#getting_a_service_account_key
 # You can only get the private key data for a service account key when the key is first created.
-
+config = trailrun::cr_gce_setup()
 cr_project_set("streamline-demo-311819")
-auth_files = c(Sys.getenv("GAR_AUTH_FILE", unset = NA),
-               Sys.getenv("GCE_AUTH_FILE", unset = NA)
-)
+# auth_files = c(Sys.getenv("GAR_AUTH_FILE", unset = NA),
+#                Sys.getenv("GCE_AUTH_FILE", unset = NA)
+# )
 cr_region_set("us-east4")
 
 # you have specified a JSON file
@@ -51,6 +50,7 @@ r_lines <- c(
   "file.exists('service_account.json')",
   "if (file.exists('.Renviron')) readLines('.Renviron')",
   'library(googleAuthR)',
+  'library(trailrun)',
   'library(googleAnalyticsR)',
   'library(gargle)',
   'sessioninfo::session_info("gargle")',
@@ -58,11 +58,9 @@ r_lines <- c(
   # 'print(token)',
   'options(gargle_verbosity = "debug")',
   'options(gargle_oauth_cache = FALSE)',
-  'token$cache_path = NULL',
+  'token = metagce::gce_token()',
   paste0("streamline.demo::google_analytics_pull_raw(", 
-         # "email = 'muschellij2@gmail.com', ", 
-         "json_file = 'service_account.json')")
-  # "token = token)")
+         "token = token)")
 )
 
 files = c("service_account.json", "client.json", 

@@ -35,6 +35,7 @@ if (nchar(project) == 0) {
 } else {
   projects = project
 }
+  projects = gcloud::gcloud_projects_list()$projectId
 ```
 
 

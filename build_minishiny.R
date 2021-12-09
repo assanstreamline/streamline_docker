@@ -23,7 +23,7 @@ result = cr_deploy_docker(
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_minishinyvm",
   timeout = 3600L,
   pre_steps = pre_steps,
-  kaniko_cache = FALSE
+  kaniko_cache = TRUE
 )
 
 result$steps

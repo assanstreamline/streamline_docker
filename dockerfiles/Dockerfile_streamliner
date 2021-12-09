@@ -10,6 +10,8 @@ RUN chmod +x /streamline_scripts/*.sh
 
 RUN /streamline_scripts/install_3rd_party.sh
 
+RUN /streamline_scripts/install_3rd_party_extensions.sh
+
 RUN /streamline_scripts/install_odbc_drivers.sh
 
 RUN /streamline_scripts/rstudio_no_login.sh
