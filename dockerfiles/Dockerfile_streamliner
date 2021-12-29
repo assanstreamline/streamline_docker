@@ -51,8 +51,6 @@ RUN install2.r --error \
     && rm -rf /tmp/downloaded_packages/ /tmp/*.rds
 
                        # MarkEdmondson1234/googleCloudRunner 
-                       
-COPY Rprofile.site /usr/local/lib/R/etc/Rprofile.site
 
 EXPOSE 8787
 
