@@ -10,6 +10,6 @@ result = cr_deploy_docker(
   image_name = "us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner-shinyvm",
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_shinyvm",
   timeout = 3600L,
-  pre_steps = pre_steps,
+  pre_steps = NULL,
   kaniko_cache = FALSE
 )

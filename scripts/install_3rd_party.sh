@@ -59,6 +59,8 @@ apt-get install -y libmagick++-dev ;
 apt-get install -y ghostscript imagemagick
 apt-get install -y libwebp-dev
 
+# FOR SYSTEM LOGS
+apt-get install -y rsyslog
 # Science/Specific 
 # apt-get install -y bowtie2
 # apt-get install -y qgis

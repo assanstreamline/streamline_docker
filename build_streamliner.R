@@ -2,14 +2,15 @@ library(googleCloudRunner)
 library(trailrun)
 setup = cr_gce_setup()
 options("googleAuthR.verbose" = 3)
-# file.remove("~/streamline_docker/Dockerfile")
-# cr_deploy_docker(
-#   local = "~/streamline_docker",
-#   image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner",
-#   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
-#   kaniko_cache = FALSE,
-#   timeout = 3600L
-# )
+file.remove("~/streamline_docker/Dockerfile")
+cr_deploy_docker(
+  local = "~/streamline_docker",
+  image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner",
+  dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
+  # kaniko_cache = FALSE,
+  options = list(machineType = "N1_HIGHCPU_8"),
+  timeout = 3600L
+)
 
 
 file.remove("~/streamline_docker/Dockerfile")
@@ -17,6 +18,6 @@ cr_deploy_docker(
   local = "~/streamline_docker",
   image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner-dev",
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner_dev",
-  kaniko_cache = FALSE,
+  # kaniko_cache = FALSE,
   timeout = 3600L
 )

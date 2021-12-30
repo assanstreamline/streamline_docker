@@ -22,13 +22,11 @@ ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 
 ## Install gargle to make sure
 RUN install2.r --error \ 
-    -r 'http://cran.rstudio.com' \
     gargle
 
 ## Install packages from CRAN
 #    googleAuthR \ 
 RUN install2.r --error \ 
-    -r 'http://cran.rstudio.com' \
     googleAnalyticsR \ 
     searchConsoleR \ 
     googleCloudRunner \
