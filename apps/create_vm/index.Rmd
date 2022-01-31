@@ -35,7 +35,7 @@ if (nchar(project) == 0) {
 } else {
   projects = project
 }
-  projects = gcloud::gcloud_projects_list()$projectId
+projects = gcloud::gcloud_projects_list()$projectId
 ```
 
 
@@ -211,6 +211,11 @@ observeEvent(input$create_image, {
       project = input$project,
       zone = input$zone)
     print(vm)
+    googleCloudStorageR::gcs_create_bucket(
+      name = paste0(input$vm_name, "-bucket"),
+      projectId = input$project, 
+      storageClass = "STANDARD"
+    )
     values$vm = vm
     values$refresh <- isolate(!values$refresh)
   }

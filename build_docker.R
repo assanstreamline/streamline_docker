@@ -21,12 +21,7 @@ file.remove("~/streamline_docker/Dockerfile")
 location = "us-east4"
 pre_steps = c(
   cr_buildstep_docker_auth_location(location),
-  cr_buildstep_gitsetup("ssh-deploy-key"),
-  cr_buildstep_git_packages(
-    path = "/workspace/deploy/packages",
-    repos = c("git@github.com:StreamlineDataScience/gcloud",
-              "git@github.com:StreamlineDataScience/metagce")
-  )
+  setup_streamline_scripts("ssh-deploy-key")
 )
 
 

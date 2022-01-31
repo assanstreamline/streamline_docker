@@ -7,12 +7,12 @@ options("googleAuthR.verbose" = 3)
 file.remove("~/streamline_docker/Dockerfile")
 location = c("us-east4", "us")
 pre_steps = c(
-  cr_buildstep_docker_auth_location(location),
+  cr_buildstep_docker_auth(location),
   cr_buildstep_gitsetup("ssh-deploy-key"),
   cr_buildstep_git_packages(
     path = "/workspace/deploy/packages",
-    repos = c("git@github.com:StreamlineDataScience/gcloud@07d74c8",
-              "git@github.com:StreamlineDataScience/metagce@46615a7")
+    repos = c("git@github.com:StreamlineDataScience/gcloud",
+              "git@github.com:StreamlineDataScience/metagce")
   )
 )
 

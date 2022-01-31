@@ -1,24 +1,24 @@
 FROM rocker/shiny
 
-RUN sudo apt-get -qq update 
+RUN apt-get -qq update 
 
 # need for Docker
-RUN sudo apt-get install -y --no-install-recommends apt-utils
+RUN apt-get install -y --no-install-recommends apt-utils
 
-RUN sudo apt-get install -y libgit2-dev cargo libssl-dev zlib1g-dev python libv8-dev pandoc pandoc-citeproc libgeos-dev libgeos++-dev default-jre-headless libharfbuzz-dev 
+RUN apt-get install -y libgit2-dev cargo libssl-dev zlib1g-dev python libv8-dev pandoc pandoc-citeproc libgeos-dev libgeos++-dev default-jre-headless libharfbuzz-dev 
 
-RUN sudo apt-get install -y libgl1-mesa-dev make libmagic-dev gdal-bin libxml2-dev libmagick++-dev libfribidi-dev libproj-dev libgdal-dev libsodium-dev libcairo2-dev imagemagick libicu-dev 
+RUN apt-get install -y libgl1-mesa-dev make libmagic-dev gdal-bin libxml2-dev libmagick++-dev libfribidi-dev libproj-dev libgdal-dev libsodium-dev libcairo2-dev imagemagick libicu-dev 
 
-RUN sudo apt-get install -y libudunits2-dev libgmp-dev libcurl4-openssl-dev libmysqlclient-dev libtiff-dev libpng-dev libglu1-mesa-dev libapparmor-dev libglpk-dev git-core
+RUN apt-get install -y libudunits2-dev libgmp-dev libcurl4-openssl-dev libmysqlclient-dev libtiff-dev libpng-dev libglu1-mesa-dev libapparmor-dev libglpk-dev git-core
 
-RUN sudo apt-get install -y apt-transport-https ca-certificates gnupg curl
+RUN apt-get install -y apt-transport-https ca-certificates gnupg curl
 
 
-RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 
-RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
 
-RUN sudo apt-get -qq update && sudo apt-get install -y google-cloud-sdk
+RUN apt-get -qq update && apt-get install -y google-cloud-sdk
 
 RUN install2.r -r https://bioconductor.org/packages/3.13/bioc -r https://bioconductor.org/packages/3.13/data/annotation -r https://bioconductor.org/packages/3.13/data/experiment -r https://bioconductor.org/packages/3.13/workflows -r https://bioconductor.org/packages/3.13/books -r https://cloud.r-project.org remotes dplyr DT flexdashboard gargle rmarkdown shiny shinyjs tibble
 

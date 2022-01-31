@@ -1,0 +1,15 @@
+FROM rocker/r-ver:4.1.2
+LABEL maintainer="Streamline_Data_Science"
+EXPOSE 8888
+EXPOSE 8787
+EXPOSE 3838
+RUN chmod 755 .
+COPY ["streamline_startup_scripts/scripts", "/streamline_scripts"]
+RUN chmod +x /streamline_scripts/*.sh
+RUN /streamline_scripts/install_3rd_party.sh
+RUN /streamline_scripts/install_3rd_party_extensions.sh
+RUN /streamline_scripts/install_texlive.sh
+RUN /streamline_scripts/install_odbc_drivers.sh
+RUN /streamline_scripts/install_gcloud.sh
+WORKDIR ./
+CMD ["R"]
