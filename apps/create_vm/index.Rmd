@@ -17,6 +17,7 @@ library(googleAuthR)
 library(dplyr)
 library(tibble)
 library(googleComputeEngineR)
+library(googleCloudStorageR)
 library(DT)
 library(shinyjs)
 ```
@@ -211,11 +212,23 @@ observeEvent(input$create_image, {
       project = input$project,
       zone = input$zone)
     print(vm)
-    googleCloudStorageR::gcs_create_bucket(
-      name = paste0(input$vm_name, "-bucket"),
-      projectId = input$project, 
-      storageClass = "STANDARD"
-    )
+    bucket_name = paste0(input$vm_name, "-bucket")
+    googleCloudStorageR::gcs_global_bucket(bucket = bucket_name)
+    bucket_exists = function(bucket_name) {
+      x = try({
+        googleCloudStorageR::gcs_get_bucket(bucket = bucket_name)
+      }, 
+      silent = TRUE)
+      !inherits(x, "try-error") && !is.null(x)
+    }
+    if (bucket_exists(bucket_name)) {
+      # create a bucket
+      googleCloudStorageR::gcs_create_bucket(
+        name = bucket_name,
+        projectId = input$project, 
+        storageClass = "STANDARD"
+      )
+    }
     values$vm = vm
     values$refresh <- isolate(!values$refresh)
   }

@@ -42,16 +42,19 @@ docker_instructions = c(
   containerit::Run_shell("/streamline_scripts/install_3rd_party_extensions.sh"),
   containerit::Run_shell("/streamline_scripts/install_texlive.sh"),
   containerit::Run_shell("/streamline_scripts/install_odbc_drivers.sh"),
-  containerit::Run_shell("/streamline_scripts/install_gcloud.sh")
+  containerit::Run_shell("/streamline_scripts/install_gcloud.sh"),
+  containerit::Run_shell("install2.r --error renv")
 )
+## Install packages from CRAN
+#    googleAuthR \ 
 
 # docker_instructions = c(
 #   docker_instructions,
 #   dock$post_steps)
 r_ver = r_ver %>% 
   filter(grepl("^4[.]1.*", version))
-index = 1
-for (index in seq(nrow(r_ver))) {
+index = 3
+# for (index in seq(nrow(r_ver))) {
   image = r_ver$full_image[index]
   image_basename = "renv-base"
   tag = r_ver$version[index]
@@ -69,12 +72,13 @@ for (index in seq(nrow(r_ver))) {
     platform = "linux-x86_64-ubuntu-gcc"
   )
   containerit::write(result, file = dockerfile_name)
-}
+# }
 
 image_url = paste0(
   "us-docker.pkg.dev/streamline-resources/", 
   "streamline-private-repo/", 
-  image_basename)
+  image_basename,
+  "-", tag)
 pre_steps = c(
   cr_buildstep_docker_auth(image_url),
   setup_streamline_scripts("ssh-deploy-key")
@@ -86,9 +90,11 @@ result = googleCloudRunner::cr_deploy_docker(
   image_name = image_url,
   dockerfile = dockerfile_name,
   timeout = 3600L,
-  tag = tag,
   pre_steps = pre_steps,
   kaniko_cache = TRUE,
   options = list(machineType = "N1_HIGHCPU_8"),
-  volumes = googleCloudRunner::git_volume()
+  volumes = googleCloudRunner::git_volume(),
+  launch_browser = FALSE
 )
+
+# }
