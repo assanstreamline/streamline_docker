@@ -53,7 +53,7 @@ docker_instructions = c(
 #   dock$post_steps)
 r_ver = r_ver %>% 
   filter(grepl("^4[.]1.*", version))
-index = 3
+index = 1
 # for (index in seq(nrow(r_ver))) {
   image = r_ver$full_image[index]
   image_basename = "renv-base"
@@ -91,8 +91,8 @@ result = googleCloudRunner::cr_deploy_docker(
   dockerfile = dockerfile_name,
   timeout = 3600L,
   pre_steps = pre_steps,
-  kaniko_cache = TRUE,
-  options = list(machineType = "N1_HIGHCPU_8"),
+  kaniko_cache = FALSE,
+  # options = list(machineType = "N1_HIGHCPU_8"),
   volumes = googleCloudRunner::git_volume(),
   launch_browser = FALSE
 )

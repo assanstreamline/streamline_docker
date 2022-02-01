@@ -10,7 +10,7 @@ pre_steps = c(
   cr_buildstep_docker_auth(location),
   cr_buildstep_gitsetup("ssh-deploy-key"),
   cr_buildstep_git_packages(
-    path = "/workspace/deploy/packages",
+    path = "/workspace/packages",
     repos = c("git@github.com:StreamlineDataScience/gcloud",
               "git@github.com:StreamlineDataScience/metagce")
   )
@@ -23,7 +23,7 @@ result = cr_deploy_docker(
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_minishinyvm",
   timeout = 3600L,
   pre_steps = pre_steps,
-  kaniko_cache = TRUE
+  kaniko_cache = FALSE
 )
 
 result$steps
