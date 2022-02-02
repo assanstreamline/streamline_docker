@@ -6,7 +6,7 @@ RUN apt-get -qqy update && \
         qpdf
         
 # same as streamliner
-COPY scripts /streamline_scripts
+COPY streamline_startup_scripts/scripts /streamline_scripts
 RUN chmod +x /streamline_scripts/*.sh
 
 RUN /streamline_scripts/install_3rd_party.sh
@@ -55,12 +55,6 @@ RUN chmod 777 ~/.cache/gargle
 RUN /streamline_scripts/install_gcloud.sh
 
 RUN /rocker_scripts/install_shiny_server.sh
-
-
-## in UNSTABLE, we will install everything from source by default:
-ENV CRAN=https://cran.r-project.org
-## Add a default CRAN mirror
-RUN echo "options(repos = c(CRAN = '${CRAN}'), download.file.method = 'libcurl')" >> ${R_HOME}/etc/Rprofile.site
 
 EXPOSE 8787
 EXPOSE 3838

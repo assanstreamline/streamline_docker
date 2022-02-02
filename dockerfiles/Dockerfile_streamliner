@@ -6,7 +6,7 @@ RUN apt-get -qqy update && \
         qpdf
         
 # same as streamliner
-COPY scripts /streamline_scripts
+COPY streamline_startup_scripts/scripts /streamline_scripts
 RUN chmod +x /streamline_scripts/*.sh
 
 RUN /streamline_scripts/install_3rd_party.sh
@@ -24,6 +24,8 @@ ENV R_REMOTES_NO_ERRORS_FROM_WARNINGS=true
 RUN install2.r --error \ 
     gargle
 
+RUN installGithub.r muschellij2/remotes
+    
 ## Install packages from CRAN
 #    googleAuthR \ 
 RUN install2.r --error \ 

@@ -1,30 +1,45 @@
 library(googleCloudRunner)
 library(trailrun)
 source("cr_helpers.R")
+source("docker_functions.R")
 setup = cr_gce_setup()
 options("googleAuthR.verbose" = 3)
 # # need this because otherwise recursive copying
 
-# file.remove("~/streamline_docker/Dockerfile")
-# cr_deploy_docker(
-#   local = "~/streamline_docker",
-#   image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner",
-#   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
-#   kaniko_cache = TRUE,
-#   timeout = 3600L
-# )
-
-
-
-# If you need GH keys:
 file.remove("~/streamline_docker/Dockerfile")
+
 location = "us-east4"
 pre_steps = c(
-  cr_buildstep_docker_auth_location(location),
+  cr_buildstep_docker_auth(location),
   setup_streamline_scripts("ssh-deploy-key")
 )
 
 
+file.remove("~/streamline_docker/Dockerfile")
+# cr_deploy_docker(
+#   local = "~/streamline_docker",
+#   image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner",
+#   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
+#   pre_steps = pre_steps,
+#   kaniko_cache = FALSE,
+#   timeout = 3600L
+# )
+
+
+file.remove("~/streamline_docker/Dockerfile")
+pre_steps = c(
+  pre_steps,
+  cr_buildstep_git_packages(
+    path = "/workspace/packages",
+    repos = c(
+      "git@github.com:StreamlineDataScience/metagce",
+      "git@github.com:StreamlineDataScience/gcloud",
+      "git@github.com:StreamlineDataScience/trailrun",
+      "git@github.com:StreamlineDataScience/streamliner",
+      "git@github.com:StreamlineDataScience/streamverse"
+    )
+  )
+)
 
 result = cr_deploy_docker(
   local = "~/streamline_docker",

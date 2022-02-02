@@ -1,12 +1,9 @@
 check_remotes_version = function() {
-  if (!requireNamespace("remotes", quietly = TRUE)) {
-    install.packages("remotes")
-  }
-  if (packageVersion("remotes") <= package_version("2.4.1.9000")) {
-    remotes::install_github("r-lib/remotes")
-    # remotes::install_github("r-lib/remotes@920e4a3")
+  if (!requireNamespace("remotes", quietly = TRUE) |
+      packageVersion("remotes") <= package_version("2.4.2")) {
+    remotes::install_github("muschellij2/remotes")
     unloadNamespace("remotes")
   }
-  stopifnot(packageVersion("remotes") >= package_version("2.4.1.9000"))
+  stopifnot(packageVersion("remotes") >= package_version("2.4.2"))
 }
 check_remotes_version()
