@@ -1,16 +1,17 @@
-# syntax=docker/dockerfile:experimental
-FROM us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner
-# See https://stackoverflow.com/questions/18136389/using-ssh-keys-inside-docker-container
-
-COPY check_remotes_version.R /
-COPY install_packages_directory.R /
-COPY packages /packages
-
-# fix due to https://github.com/r-lib/remotes/pull/630
-RUN Rscript /check_remotes_version.R
-
-RUN Rscript /install_packages_directory.R
-
-RUN rm -rf /packages
-
-CMD ["/init"]
+FROM us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner:latest
+LABEL maintainer="jupyter"
+COPY ["check_remotes_version.R", "/"]
+CMD ["R", "--vanilla", "-f", "/check_remotes_version.R"]
+RUN ["mkdir", "-m", "700", "-p", "/root/.ssh/"]
+COPY [".ssh/*", "/root/.ssh/"]
+RUN eval $(ssh-agent) && chmod 600 /root/.ssh/id_rsa && echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && ssh-add /root/.ssh/id_rsa
+RUN ["git", "config", "--global", "user.name", "googleCloudRunner"]
+RUN ["git", "config", "--global", "user.email", "cr_buildstep_gitsetup@googleCloudRunner.com"]
+RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/metagce'), git = 'external')"
+RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/gcloud'), git = 'external')"
+RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/trailrun'), git = 'external')"
+RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/streamliner'), git = 'external')"
+RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/streamverse'), git = 'external')"
+RUN ["rm", "-rf", "/root/.ssh/*"]
+WORKDIR /payload/
+CMD ["R"]

@@ -8,51 +8,28 @@ options("googleAuthR.verbose" = 3)
 
 file.remove("~/streamline_docker/Dockerfile")
 
-location = "us"
+location = c("us", "us-docker.pkg.dev",
+             "us-east4-docker.pkg.dev",
+             "gcr.io", "us.gcr.io")
 pre_steps = c(
   cr_buildstep_docker_auth(location),
   setup_streamline_scripts("ssh-deploy-key")
 )
 
 
-file.remove("~/streamline_docker/Dockerfile")
-cr_deploy_docker(
-  local = "~/streamline_docker",
-  image_name = paste0("us-docker.pkg.dev/streamline-resources/",
-                      "streamline-private-repo/streamliner"),
-  dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
-  pre_steps = pre_steps,
-  kaniko_cache = FALSE,
-  timeout = 3600L
-)
+# file.remove("~/streamline_docker/Dockerfile")
+# cr_deploy_docker(
+#   local = "~/streamline_docker",
+#   image_name = paste0("us-docker.pkg.dev/streamline-resources/",
+#                       "streamline-private-repo/streamliner"),
+#   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
+#   pre_steps = pre_steps,
+#   kaniko_cache = FALSE,
+#   timeout = 3600L
+# )
 
-
-file.remove("~/streamline_docker/Dockerfile")
-pre_steps = c(
-  pre_steps,
-  cr_buildstep_git_packages(
-    path = "/workspace/packages",
-    repos = c(
-      "git@github.com:StreamlineDataScience/metagce",
-      "git@github.com:StreamlineDataScience/gcloud",
-      "git@github.com:StreamlineDataScience/trailrun",
-      "git@github.com:StreamlineDataScience/streamliner",
-      "git@github.com:StreamlineDataScience/streamverse"
-    )
-  )
-)
-
-result = cr_deploy_docker(
-  local = "~/streamline_docker",
-  image_name = paste0("us-docker.pkg.dev/streamline-resources/", 
-                      "streamline-private-repo/streamliner-packages"),
-  dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_packages",
-  timeout = 3600L,
-  pre_steps = pre_steps,
-  kaniko_cache = FALSE,
-  volumes = git_volume()
-)
 # https://gcr.io/streamline-resources/streamline-docker-repo/streamliner-packages
+
 
 
 
@@ -69,7 +46,7 @@ result = cr_deploy_docker(
 #   id = "rm deploy ssh"
 # )
 # pre_steps = c(
-#   cr_buildstep_docker_auth_location(location),
+#   cr_buildstep_docker_auth(location),
 #   cr_buildstep_gitsetup("ssh-deploy-key"),
 #   cp_step
 # )

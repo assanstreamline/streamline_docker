@@ -65,7 +65,7 @@ numericInput("gb", "Disk size (Gb)", value = 80, min = 1, max = 1000, step = 1L)
 
 textInput(
   "dynamic_image", "Docker Image to Run:", 
-  value = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner"
+  value = "us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner"
 )
 uiOutput("machiner")
 

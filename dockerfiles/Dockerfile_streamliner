@@ -52,7 +52,6 @@ RUN install2.r --error \
 
                        # MarkEdmondson1234/googleCloudRunner 
 
-EXPOSE 8787
 
 # need this because gargle caches
 RUN mkdir -p ~/.cache/gargle
@@ -61,11 +60,15 @@ RUN chmod 777 ~/.cache/gargle
 RUN /streamline_scripts/install_gcloud.sh
 
 RUN /rocker_scripts/install_shiny_server.sh
-EXPOSE 3838
+
 
 ## in UNSTABLE, we will install everything from source by default:
 ## Add a default CRAN mirror
 # RUN echo "options(repos = c(CRAN = '${CRAN}'), download.file.method = 'libcurl')" >> ${R_HOME}/etc/Rprofile.site
+
+EXPOSE 8787
+EXPOSE 3838
+EXPOSE 1410
 
 CMD ["/init"]
 
