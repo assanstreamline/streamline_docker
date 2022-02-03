@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:experimental
-FROM us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner
+FROM us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner
 # See https://stackoverflow.com/questions/18136389/using-ssh-keys-inside-docker-container
 
 

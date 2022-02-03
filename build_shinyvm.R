@@ -6,7 +6,7 @@ source("docker_functions.R")
 # # need this because otherwise recursive copying
 
 
-location = c("us-east4", "us")
+location = "us"
 pre_steps = c(
   cr_buildstep_docker_auth(location)
   # setup_streamline_scripts("ssh-deploy-key")

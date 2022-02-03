@@ -5,7 +5,7 @@ setup = cr_gce_setup()
 options("googleAuthR.verbose" = 3)
 
 file.remove("~/streamline_docker/Dockerfile")
-location = c("us-east4", "us")
+location = "us"
 pre_steps = c(
   cr_buildstep_docker_auth(location),
   cr_buildstep_gitsetup("ssh-deploy-key"),

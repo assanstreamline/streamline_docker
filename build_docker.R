@@ -57,7 +57,7 @@ result = cr_deploy_docker(
 
 
 # file.remove("~/streamline_docker/Dockerfile")
-# location = "us-east4"
+# location = "us"
 # cp_step = cr_buildstep_bash(
 #   paste0("mkdir -p /workspace/deploy/.ssh && ", 
 #          "cp /root/.ssh/* /workspace/deploy/.ssh/"),
