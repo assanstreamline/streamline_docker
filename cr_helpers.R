@@ -382,11 +382,14 @@ cr_buildstep_git_packages = function(
   path = "/workspace/deploy/packages",
   clone_args = NULL,
   ...) {
+  i <- 1
   git_steps = sapply(repos, function(repo) {
     res = remotes:::git_remote(repo)
     repo = res$url
     ref = res$ref
-    out_path = file.path(path, basename(repo))
+    iord = sprintf("%04.0f", i)
+    out_path = file.path(path, paste0(iord, "-", basename(repo)))
+    i <<- i + 1
     step = cr_buildstep_git(
       git_args = c(
         "clone", 
@@ -407,6 +410,7 @@ cr_buildstep_git_packages = function(
     }
     step
   })
+  
   git_steps = unname(git_steps)
   c(
     cr_buildstep_mkdir(path),

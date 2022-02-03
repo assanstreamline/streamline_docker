@@ -5,7 +5,7 @@ options("googleAuthR.verbose" = 3)
 file.remove("~/streamline_docker/Dockerfile")
 cr_deploy_docker(
   local = "~/streamline_docker",
-  image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner",
+  image_name = "us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner",
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
   # kaniko_cache = FALSE,
   timeout = 3600L

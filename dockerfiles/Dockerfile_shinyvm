@@ -2,7 +2,6 @@
 FROM us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner-packages
 
 RUN install2.r --error \ 
-    -r 'http://cran.rstudio.com' \
     shiny \
     shinydashboard \
     DT \

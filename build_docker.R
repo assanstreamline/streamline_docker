@@ -15,10 +15,11 @@ pre_steps = c(
 )
 
 
-file.remove("~/streamline_docker/Dockerfile")
+# file.remove("~/streamline_docker/Dockerfile")
 # cr_deploy_docker(
 #   local = "~/streamline_docker",
-#   image_name = "us-east4-docker.pkg.dev/streamline-resources/streamline-docker-repo/streamliner",
+#   image_name = paste0("us-docker.pkg.dev/streamline-resources/", 
+#                       "streamline-private-repo/streamliner"),
 #   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
 #   pre_steps = pre_steps,
 #   kaniko_cache = FALSE,
@@ -43,7 +44,8 @@ pre_steps = c(
 
 result = cr_deploy_docker(
   local = "~/streamline_docker",
-  image_name = "us-docker.pkg.dev/streamline-resources/streamline-private-repo/streamliner-packages",
+  image_name = paste0("us-docker.pkg.dev/streamline-resources/", 
+                      "streamline-private-repo/streamliner-packages"),
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_packages",
   timeout = 3600L,
   pre_steps = pre_steps,
