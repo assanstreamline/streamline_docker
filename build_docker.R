@@ -8,23 +8,23 @@ options("googleAuthR.verbose" = 3)
 
 file.remove("~/streamline_docker/Dockerfile")
 
-location = "us-east4"
+location = "us"
 pre_steps = c(
   cr_buildstep_docker_auth(location),
   setup_streamline_scripts("ssh-deploy-key")
 )
 
 
-# file.remove("~/streamline_docker/Dockerfile")
-# cr_deploy_docker(
-#   local = "~/streamline_docker",
-#   image_name = paste0("us-docker.pkg.dev/streamline-resources/", 
-#                       "streamline-private-repo/streamliner"),
-#   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
-#   pre_steps = pre_steps,
-#   kaniko_cache = FALSE,
-#   timeout = 3600L
-# )
+file.remove("~/streamline_docker/Dockerfile")
+cr_deploy_docker(
+  local = "~/streamline_docker",
+  image_name = paste0("us-docker.pkg.dev/streamline-resources/",
+                      "streamline-private-repo/streamliner"),
+  dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_streamliner",
+  pre_steps = pre_steps,
+  kaniko_cache = FALSE,
+  timeout = 3600L
+)
 
 
 file.remove("~/streamline_docker/Dockerfile")
