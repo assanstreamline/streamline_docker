@@ -33,7 +33,7 @@ collapse_package_install = function(x,
   x
 }
 
-ssh = trailrun:::docker_setup_ssh()
+ssh = trailrun::docker_setup_ssh()
 docker_instructions = c(
   containerit::Copy("check_remotes_version.R", "/"),
   containerit::CMD_Rscript(path = "/check_remotes_version.R"),
@@ -53,7 +53,9 @@ image_url = paste0("us-docker.pkg.dev/streamline-resources/",
 dockerfile = containerit::dockerfile(
   from = containerit::clean_session(),
   instructions = docker_instructions,
-  image = image_url)
+  image = image_url, 
+  container_workdir = "./",
+  cmd = "/init")
 containerit::write(dockerfile, 
                    file = "dockerfiles/Dockerfile_packages")
 
@@ -61,15 +63,15 @@ containerit::write(dockerfile,
 
 file.remove("~/streamline_docker/Dockerfile")
 
+build_ssh = trailrun::build_setup_ssh()
+
 location = c("us", "us-docker.pkg.dev",
              "us-east4-docker.pkg.dev",
              "gcr.io", "us.gcr.io")
 pre_steps = c(
   cr_buildstep_cat("Dockerfile"),
-  cr_buildstep_docker_auth(location),
-  cr_buildstep("docker", 
-               args = c("pull", image_url)),
-  googleCloudRunner::cr_buildstep_gitsetup("ssh-deploy-key")
+  googleCloudRunner::cr_buildstep_gitsetup("ssh-deploy-key"),
+  build_ssh$pre_steps
 )
 
 
@@ -80,7 +82,7 @@ result = cr_deploy_docker(
   dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_packages",
   timeout = 3600L,
   pre_steps = pre_steps,
-  build_args = "--pull",
+  post_steps = build_ssh$post_steps,
   volumes = git_volume(),
   kaniko_cache = FALSE
 )

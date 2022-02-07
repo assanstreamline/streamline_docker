@@ -11,7 +11,9 @@ RUN install2.r --error \
 RUN Rscript -e "remotes::install_github('muschellij2/googleCloudRunner')"
 RUN Rscript -e "remotes::install_github('muschellij2/googleComputeEngineR')"
 
+
 COPY apps/ /srv/shiny-server/
+RUN cat /srv/shiny-server/create_vm/index.Rmd
 
 EXPOSE 3838
 EXPOSE 8787

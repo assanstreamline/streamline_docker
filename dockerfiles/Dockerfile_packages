@@ -13,5 +13,5 @@ RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/trailrun'
 RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/streamliner'), git = 'external')"
 RUN R -e "remotes::install_git(c('git@github.com:StreamlineDataScience/streamverse'), git = 'external')"
 RUN ["rm", "-rf", "/root/.ssh/*"]
-WORKDIR /payload/
-CMD ["R"]
+WORKDIR ./
+CMD ["/init"]

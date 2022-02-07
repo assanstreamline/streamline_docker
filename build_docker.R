@@ -12,8 +12,16 @@ location = c("us", "us-docker.pkg.dev",
              "us-east4-docker.pkg.dev",
              "gcr.io", "us.gcr.io")
 pre_steps = c(
-  cr_buildstep_docker_auth(location),
-  setup_streamline_scripts("ssh-deploy-key")
+  # cr_buildstep_docker_auth(location),
+  # cr_buildstep(
+  #   "cloud-sdk:latest",
+  #   entrypoint = "gcloud",
+  #   args = c("beta", "auth", "configure-docker",
+  #            "us-docker.pkg.dev"),
+  #   prefix = "gcr.io/google.com/cloudsdktool/"
+  # ),
+  # cr_buildstep_cat("~/.docker/config.json"), 
+  googleCloudRunner::cr_buildstep_gitsetup("ssh-deploy-key")
 )
 
 
@@ -27,6 +35,19 @@ pre_steps = c(
 #   kaniko_cache = FALSE,
 #   timeout = 3600L
 # )
+
+image_url = paste0("us-docker.pkg.dev/streamline-resources/",
+                   "streamline-private-repo/streamliner-packages")
+cr_deploy_docker(
+  local = "~/streamline_docker",
+  image_name = image_url,
+  dockerfile = "~/streamline_docker/dockerfiles/Dockerfile_packages",
+  pre_steps = pre_steps,
+  kaniko_cache = FALSE,
+  volumes = git_volume(),
+  # images = image_url,
+  timeout = 3600L
+)
 
 # https://gcr.io/streamline-resources/streamline-docker-repo/streamliner-packages
 

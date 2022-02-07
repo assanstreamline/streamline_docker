@@ -10,3 +10,4 @@ token.rds
 .DS_Store
 .Renviron
 Dockerfile
+.ssh
