@@ -65,7 +65,7 @@ docker_instructions = c(
 #   dock$post_steps)
 r_ver = r_ver %>% 
   filter(grepl("^4[.]1.*", version))
-index = 2
+index = 3
 # for (index in seq(nrow(r_ver))) {
 image = r_ver$full_image[index]
 image_basename = "renv-base"
