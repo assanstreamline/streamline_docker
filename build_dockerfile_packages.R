@@ -63,7 +63,7 @@ containerit::write(dockerfile,
 
 file.remove("~/streamline_docker/Dockerfile")
 
-build_ssh = trailrun::build_setup_ssh()
+build_ssh = trailrun::build_setup_ssh("/workspace")
 
 location = c("us", "us-docker.pkg.dev",
              "us-east4-docker.pkg.dev",

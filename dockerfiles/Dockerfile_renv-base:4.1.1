@@ -1,5 +1,6 @@
 FROM rocker/r-ver:4.1.1
 LABEL maintainer="Streamline_Data_Science"
+RUN /rocker_scripts/install_pandoc.sh
 EXPOSE 8888
 EXPOSE 8787
 EXPOSE 3838
@@ -11,6 +12,9 @@ RUN /streamline_scripts/install_3rd_party_extensions.sh
 RUN /streamline_scripts/install_texlive.sh
 RUN /streamline_scripts/install_odbc_drivers.sh
 RUN /streamline_scripts/install_gcloud.sh
-RUN install2.r --error renv
+RUN install2.r --error renv remotes rcmdcheck
+ENV _R_CHECK_CRAN_INCOMING_="false"
+COPY ["package_scripts", "/package_scripts"]
+RUN chmod +x /package_scripts/*
+RUN R -f /package_scripts/remotes_external_git.R
 WORKDIR ./
-CMD ["R"]

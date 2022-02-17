@@ -108,9 +108,13 @@ Column {data-width=600}
 values = reactiveValues(refresh = FALSE,
                         vm = NULL)
 shinyjs::disable("create_image")
+trim_null = function(x) {
+  if (is.null(x)) return(x)
+  trimws(x)
+}
 reactive({
-  gcloud::gcloud_project_set(project = input$project)
-  googleComputeEngineR::gce_global_project(project = input$project)
+  gcloud::gcloud_project_set(project = trim_null(input$project))
+  googleComputeEngineR::gce_global_project(project = trim_null(input$project))
 })
 ```
 
@@ -154,10 +158,15 @@ Column {data-width=400}
 ### Current VMs Running
 
 ```{r}
+trim_null = function(x) {
+  if (is.null(x)) return(x)
+  trimws(x)
+}
 existing_vms = reactive({
   values$refresh = isolate(values$refresh)
   the_list <- try({
-    gce_list_instances(project = input$project, zone = input$zone)
+    gce_list_instances(project = trim_null(input$project), 
+                       zone = input$zone)
   }, silent = TRUE)
   if (inherits(the_list, "try-error")) return(NULL)
   df = tibble::as_tibble(the_list)

@@ -1,5 +1,6 @@
 FROM rocker/r-ver:4.1.0
 LABEL maintainer="Streamline_Data_Science"
+RUN /rocker_scripts/install_pandoc.sh
 EXPOSE 8888
 EXPOSE 8787
 EXPOSE 3838
