@@ -14,14 +14,14 @@ else
 echo "No SSH key Found!"
 fi
 
-if [[ -f /workspace/.ssh/id_rsa ]];
+if [[ -f /ssh/.ssh/id_rsa ]];
 then 
-echo "adding workspace SSH KEY - running"
-chmod 600 /workspace/.ssh/id_rsa && \
+echo "adding ssh SSH KEY - running"
+chmod 600 /ssh/.ssh/id_rsa && \
 echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
-ssh-add /workspace/.ssh/id_rsa
+ssh-add /ssh/.ssh/id_rsa
 else 
-echo "No workspace SSH key Found!"
+echo "No ssh SSH key Found!"
 fi
 
 R -e "if (requireNamespace('sessioninfo')) sessioninfo::package_info(pkgs = 'remotes')"
