@@ -1,3 +1,9 @@
+
+eval $(ssh-agent) && \
+chmod 600 /root/.ssh/id_rsa && \
+echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
+ssh-add /root/.ssh/id_rsa
+
 echo "ls"
 ls -l
 echo "ls workspace"
