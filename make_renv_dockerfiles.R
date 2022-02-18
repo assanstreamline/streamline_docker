@@ -45,7 +45,7 @@ docker_instructions = c(
   containerit::Run_shell("/streamline_scripts/install_texlive.sh"),
   containerit::Run_shell("/streamline_scripts/install_odbc_drivers.sh"),
   containerit::Run_shell("/streamline_scripts/install_gcloud.sh"),
-  containerit::Run_shell("install2.r --error renv remotes rcmdcheck")
+  containerit::Run_shell("install2.r --error renv remotes rcmdcheck sessioninfo")
 )
 
 docker_instructions = c(

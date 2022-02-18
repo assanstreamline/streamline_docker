@@ -11,3 +11,4 @@ token.rds
 .Renviron
 Dockerfile
 .ssh
+.httr-oauth-salesforcer

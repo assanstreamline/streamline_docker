@@ -7,6 +7,7 @@ echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
 ssh-add /root/.ssh/id_rsa
 fi
 
+R -e "if (requireNamespace('sessioninfo')) sessioninfo::package_info(pkgs = 'remotes')"
 echo "ls"
 ls -l
 echo "ls workspace"
