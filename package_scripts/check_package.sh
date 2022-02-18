@@ -1,8 +1,11 @@
 
+if [[ -f /root/.ssh/id_rsa ]];
+then
 eval $(ssh-agent) && \
 chmod 600 /root/.ssh/id_rsa && \
 echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
 ssh-add /root/.ssh/id_rsa
+fi
 
 echo "ls"
 ls -l
