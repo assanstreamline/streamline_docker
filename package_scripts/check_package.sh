@@ -1,17 +1,18 @@
 
+eval $(ssh-agent) 
 if [[ -f /root/.ssh/id_rsa ]];
-then
-eval $(ssh-agent) && \
+then 
+echo "adding SSH KEY - running"
 chmod 600 /root/.ssh/id_rsa && \
 echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
 ssh-add /root/.ssh/id_rsa
+else 
+echo "No SSH key Found!"
 fi
 
 R -e "if (requireNamespace('sessioninfo')) sessioninfo::package_info(pkgs = 'remotes')"
 echo "ls"
 ls -l
-echo "ls workspace"
-ls -l /workspace || true
 echo "PWD is ${PWD}"
 R -f /package_scripts/install_deps.R
 package_name=`cat DESCRIPTION | grep Package: | awk '{print $2}'` && \
@@ -21,5 +22,6 @@ echo "ls"
 ls -l
 echo "ls workspace"
 ls -l /workspace || true
-tar xzf tar cvzf ${package_name}_check.tar.gz check/ 
+tar cvzf ${package_name}_check.tar.gz check/ || true
 exit ${exit_code}
+

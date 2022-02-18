@@ -12,7 +12,7 @@ RUN /streamline_scripts/install_3rd_party_extensions.sh
 RUN /streamline_scripts/install_texlive.sh
 RUN /streamline_scripts/install_odbc_drivers.sh
 RUN /streamline_scripts/install_gcloud.sh
-RUN install2.r --error renv remotes rcmdcheck
+RUN install2.r --error renv remotes rcmdcheck sessioninfo
 ENV _R_CHECK_CRAN_INCOMING_="false"
 COPY ["package_scripts", "/package_scripts"]
 RUN chmod +x /package_scripts/*
