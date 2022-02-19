@@ -32,8 +32,14 @@ echo "ls"
 ls -l
 echo "PWD is ${PWD}"
 R -f /package_scripts/install_deps.R
+
+# do we need ssh capabilities in the package?
+# I don't think generally, but may need to change this in the future
+# using this so that .ssh isn't in the check folder anywhere
+rm -rf .ssh/
 package_name=`cat DESCRIPTION | grep Package: | awk '{print $2}'` && \
 R -f /package_scripts/check_package.R || exit_code=$?
+
 
 echo "ls"
 ls -l
