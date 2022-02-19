@@ -1,30 +1,33 @@
 
+################################################
+# SSH Key adding
+################################################
 eval $(ssh-agent) 
+echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+
 echo "ls /root"
 ls -l /root || true
 echo "ls /root/.ssh"
 ls -l /root/.ssh || true
-if [[ -f /root/.ssh/id_rsa ]];
-then 
-echo "adding SSH KEY - running"
-chmod 600 /root/.ssh/id_rsa && \
-echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
-ssh-add /root/.ssh/id_rsa
-else 
-echo "No SSH key Found!"
-fi
 
-if [[ -f /ssh/.ssh/id_rsa ]];
-then 
-echo "adding ssh SSH KEY - running"
-chmod 600 /ssh/.ssh/id_rsa && \
-echo "StrictHostKeyChecking no" >> /etc/ssh/ssh_config && \
-ssh-add /ssh/.ssh/id_rsa
-else 
-echo "No ssh SSH key Found!"
-fi
+# trying to run the normal places ssh key exists
+for ifile in /root/.ssh/id_rsa /ssh/.ssh/id_rsa /workspace/.ssh/id_rsa .ssh/id_rsa; 
+do
+  if [[ -f ${ifile} ]];
+  then 
+    echo "adding ${ifile} SSH KEY - running"
+    chmod 600 ${ifile} && \
+    ssh-add ${ifile}
+  else 
+    echo "No ${ifile} SSH key Found!"
+  fi
+done
+# this is in case we're using in local directory
+R -e "if (requireNamespace('usethis')) usethis::use_build_ignore('.ssh')"
 
+# Just checking remotes version
 R -e "if (requireNamespace('sessioninfo')) sessioninfo::package_info(pkgs = 'remotes')"
+
 echo "ls"
 ls -l
 echo "PWD is ${PWD}"
