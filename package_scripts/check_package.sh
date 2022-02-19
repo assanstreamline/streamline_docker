@@ -29,7 +29,7 @@ R -e "if (requireNamespace('usethis')) usethis::use_build_ignore('.ssh')"
 R -e "if (requireNamespace('sessioninfo')) sessioninfo::package_info(pkgs = 'remotes')"
 
 echo "ls"
-ls -l
+ls -la
 echo "PWD is ${PWD}"
 R -f /package_scripts/install_deps.R
 
@@ -38,13 +38,14 @@ R -f /package_scripts/install_deps.R
 # using this so that .ssh isn't in the check folder anywhere
 rm -rf .ssh/
 package_name=`cat DESCRIPTION | grep Package: | awk '{print $2}'` && \
+echo "package_name is ${package_name}" && \
 R -f /package_scripts/check_package.R || exit_code=$?
 
 
 echo "ls"
-ls -l
+ls -la
 echo "ls workspace"
-ls -l /workspace || true
+ls -la /workspace || true
 tar cvzf ${package_name}_check.tar.gz check/ || true
 exit ${exit_code}
 
