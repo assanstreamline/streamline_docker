@@ -51,7 +51,7 @@ tar cvzf /workspace/${package_name}_check.tar.gz check/ || true
 # Need to extract bucket name or pass this through
 # if [ ${exit_code} -ne 0 ]; then
 #   suffix=`date +"%Y-%m-%d"`
-#   gsutil cp /workspace/${package_name}_check.tar.gz gs://${bucket_name}/${package_name}_check_${suffix}.tar.gz
+#   gsutil cp /workspace/${package_name}_check.tar.gz gs://${bucket_name}/${package_name}_check_${suffix}.tar.gz || true
 # fi
 exit ${exit_code}
 
