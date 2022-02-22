@@ -44,7 +44,8 @@ R -f /package_scripts/check_package.R || exit_code=$?
 echo ${exit_code} > /workspace/exit_code.txt
 
 ls -la /workspace || true
-tar cvzf /workspace/${package_name}_check.tar.gz check/*.Rcheck || true
+suffix=`date +"%Y-%m-%d-%H%M%S"`
+tar cvzf /workspace/${package_name}_check_${suffix}.tar.gz check/*.Rcheck || true
 
 echo "ls workspace"
 ls -la /workspace || true
