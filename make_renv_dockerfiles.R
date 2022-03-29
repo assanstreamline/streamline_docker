@@ -65,7 +65,7 @@ docker_instructions = c(
 #   dock$post_steps)
 r_ver = r_ver %>% 
   filter(grepl("^4[.]1.*", version))
-index = 2
+index = 3
 # for (index in seq(nrow(r_ver))) {
 image = r_ver$full_image[index]
 image_basename = "renv-base"
@@ -103,7 +103,7 @@ build2 = function(image_name, ...) {
     ...,
     image_name = image_name,
     timeout = 3600L,
-    images = image_name,
+    # images = image_name,
     build_args = build_args,
     kaniko_cache = FALSE,
     # options = list(machineType = "N1_HIGHCPU_8"),

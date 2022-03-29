@@ -11,18 +11,22 @@ file.remove("~/streamline_docker/Dockerfile")
 location = c("us", "us-docker.pkg.dev",
              "us-east4-docker.pkg.dev",
              "gcr.io", "us.gcr.io")
-pre_steps = c(
-  # cr_buildstep_docker_auth(location),
-  # cr_buildstep(
-  #   "cloud-sdk:latest",
-  #   entrypoint = "gcloud",
-  #   args = c("beta", "auth", "configure-docker",
-  #            "us-docker.pkg.dev"),
-  #   prefix = "gcr.io/google.com/cloudsdktool/"
-  # ),
-  # cr_buildstep_cat("~/.docker/config.json"), 
-  googleCloudRunner::cr_buildstep_gitsetup("ssh-deploy-key")
-)
+# pre_steps = c(
+#   # setup_streamline_scripts()
+#   # cr_buildstep_docker_auth(location),
+#   # cr_buildstep(
+#   #   "cloud-sdk:latest",
+#   #   entrypoint = "gcloud",
+#   #   args = c("beta", "auth", "configure-docker",
+#   #            "us-docker.pkg.dev"),
+#   #   prefix = "gcr.io/google.com/cloudsdktool/"
+#   # ),
+#   # cr_buildstep_cat("~/.docker/config.json"), 
+#   googleCloudRunner::cr_buildstep_gitsetup("ssh-deploy-key")
+# )
+pre_steps = NULL
+pre_steps = c(pre_steps,
+              setup_streamline_scripts("ssh-deploy-key"))
 
 
 # file.remove("~/streamline_docker/Dockerfile")
@@ -38,6 +42,14 @@ pre_steps = c(
 
 image_url = paste0("us-docker.pkg.dev/streamline-resources/",
                    "streamline-private-repo/streamliner-packages")
+pre_steps = c(pre_steps,
+              cr_buildstep_bash(
+                paste0("mkdir -p /workspace/.ssh && ",
+                       "cp /root/.ssh/* /workspace/.ssh/"),
+                volumes = git_volume(),
+                id = "cp deploy ssh"
+              )
+)
 cr_deploy_docker(
   local = "~/streamline_docker",
   image_name = image_url,
