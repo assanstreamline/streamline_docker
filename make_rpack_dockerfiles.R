@@ -17,13 +17,16 @@ docker_instructions = c(
   containerit::Copy("package_scripts", "/package_scripts", 
                     addTrailingSlashes = FALSE),
   containerit::Run_shell("chmod +x /package_scripts/*"),
-  containerit::Run("/rocker_scripts/install_python.sh")
+  containerit::Run("/rocker_scripts/install_python.sh"),
+  # related to https://github.com/rstudio/reticulate/issues/1190
+  containerit::Run(
+  "python -m pip install numpy --force-reinstall --no-binary numpy")
   
 )
 
 pre_steps = NULL
 
-version = "4.1.2"
+version = "4.1.1"
 # for (index in seq(nrow(r_ver))) {
 from_image_base = "renv-base"
 from_image = paste0(from_image_base, "-", version)
